@@ -118,13 +118,27 @@
                 <tr>
                     <th scope="col">User ID</th>
                     <th scope="col">Email</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Position</th>
-                    <th scope="col">Type Job</th>
+                    <th scope="col">First Name</th>
+                    <th scope="col">Last Name</th>
+                    <!-- <th scope="col">Position</th>
+                    <th scope="col">Type Job</th> -->
                     <th scope="col">Action</th>
                 </tr>
             </thead>
             <tbody>
+                <% result.forEach((item, index) => { %>
+                <tr>
+                    <th scope="row"><%= item.userid %></th>
+                    <td><%= item.email %></td>
+                    <td><%= item.firstname %></td>
+                    <td><%= item.lastname %></td>
+                    <td>
+                        <a class="btn btn-dark my-2 my-sm-0" 
+                            href="/users/edit/<%= item.userid %>" role="button">Edit</a>
+                        <a class="btn btn-dark my-2 my-sm-0"
+                            href="/users/delete/<%= item.userid %>">Delete</a>
+                    </td>
+                    <% }) %>
             </tbody>
         </table>
         <div class="form-group row">

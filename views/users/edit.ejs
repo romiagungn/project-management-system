@@ -3,33 +3,39 @@
 <div class="container-fluid" style="background-image: ('url:images/Robson-Mountain.jpg');">
 
     <br>
-    <h2>Add User</h2>
+    <h2>Edit User</h2>
     <hr>
 
     <div class="container""> 
     <form id=" form-filter" method="POST">
         <div class="container form-group row">
-            <label for="inputID" class="col-sm-2 col-form-label"> First Name </label>
+            <label for="inputID" class="col-sm-2 col-form-label"> ID </label>
             <div class="col-sm-10">
-                <input type="text" class="form-control" name='firstname' placeholder="First Name">
-            </div>
-        </div>
-        <div class="container form-group row">
-            <label for="inputID" class="col-sm-2 col-form-label"> Last Name </label>
-            <div class="col-sm-10">
-                <input type="text" class="form-control" name='lastname' placeholder="Last Name">
+                <input type="text" class="form-control" name='inputID' placeholder="ID" value="<%= result.userid %>">
             </div>
         </div>
         <div class="container form-group row">
             <label for="inputID" class="col-sm-2 col-form-label"> Email </label>
             <div class="col-sm-10">
-                <input type="text" class="form-control" name='email' placeholder="Email">
+                <input type="text" class="form-control" name='email' placeholder="Email" value="<%= result.email %>">
             </div>
         </div>
         <div class="container form-group row">
             <label for="inputID" class="col-sm-2 col-form-label"> Password </label>
             <div class="col-sm-10">
-                <input type="password" class="form-control" name='password' placeholder="Password">
+                <input type="password" class="form-control" name='password' placeholder="Password" value="<%= result.password %>">
+            </div>
+        </div>
+        <div class="container form-group row">
+            <label for="inputID" class="col-sm-2 col-form-label"> First Name </label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" name='firstname' placeholder="First Name" value="<%= result.firstname %>">
+            </div>
+        </div>
+        <div class="container form-group row">
+            <label for="inputID" class="col-sm-2 col-form-label"> Last Name </label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" name='lastname' placeholder="Last Name" value="<%= result.lastname %>">
             </div>
         </div>
         <!-- <div class="container form-group row">
@@ -66,8 +72,8 @@
         </fieldset> -->
         <div class="container form-group row">
             <div class="col-sm-10">
-                <button class="btn btn-dark my-2 my-sm-0" type="submit">Save</button>
-                <a href="/users" class="btn btn-dark my-2 my-sm-0" type="button">Cancel</a>
+                <button class="btn btn-dark my-2 my-sm-0" type="submit">Update</button>
+                <a href="/users" class="btn btn-dark my-2 my-sm-0" type="button">Back</a>
             </div>
         </div>
         </form>
