@@ -1,0 +1,155 @@
+<%- include("../partials/navbar") %>
+
+<div class="container-fluid" style="background-image: ('url:images/Robson-Mountain.jpg');">
+
+    <br>
+    <h2>Projects</h2>
+    <hr>
+    <div class="container">
+        <h3>Filters</h3>
+        <hr>
+        <form id="form-filter" method="GET">
+            <div class="container form-group row">
+                <label for="inputID" class="col-sm-2 col-form-label">
+                    <input type="checkbox" name="checkID"> ID</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name='inputID' placeholder="ID">
+                </div>
+            </div>
+            <div class="container form-group row">
+                <label for="inputID" class="col-sm-2 col-form-label">
+                    <input type="checkbox" name="checkName"> Name </label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name='nama' placeholder="Name">
+                </div>
+            </div>
+            <div class="container form-group row">
+                <label for="inputID" class="col-sm-2 col-form-label">
+                    <input type="checkbox" name="checkEmail"> Email </label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name='email' placeholder="Name">
+                </div>
+            </div>
+            <div class="container form-group row">
+                <label for="inputBoolean" class="col-sm-2 col-form-label"> <input type="checkbox" name="checkMember">
+                    Position</label>
+                <div class="col-sm-10">
+                    <select class="custom-select" name="inputMember">
+                        <option value="">Choose Position</option>
+                        <option value="">Quality Assurance</option>
+                        <option value="">Manager</option>
+                        <option value="">Software Developer</option>
+                    </select>
+                </div>
+            </div>
+            <fieldset class="form-group">
+                <div class="container form-group row">
+                    <legend class="col-form-label col-sm-2 pt-0">
+                        <input type="checkbox" name="checkTypeJob"> Type Job
+                    </legend>
+                    <div class="col-sm-10">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="gridRadios1" name="inputTypeJob"
+                                value="Full Time" checked>
+                            <label class="form-check-label" for="gridRadios1">
+                                Full Time
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="gridRadios2" name="inputTypeJob"
+                                value="Part Time">
+                            <label class="form-check-label" for="gridRadios2">
+                                Part Time
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+            <div class="container form-group row">
+                <div class="col-sm-10">
+                    <button class="btn btn-dark my-2 my-sm-0" type="submit">Search</button>
+                    <a href="" class="btn btn-dark my-2 my-sm-0" type="submit">Show All</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+    <div class="container">
+        <form method="POST" action="">
+            <h3>Options</h3>
+            <hr>
+            <div class="form-group row">
+                <div class="col-sm-2" style=>Columns</div>
+                <div class="col-sm-10">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="checkID" name="checkid" value="true">
+                        <label class="form-check-label" for="checkID">
+                            ID
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="checkName" name="checkname" value="true">
+                        <label class="form-check-label" for="checkName">
+                            Name
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="checkMember" name="checkmember"
+                            value="true">
+                        <label class="form-check-label" for="checkMember">
+                            Position
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-10">
+                    <button class="btn btn-dark my-2 my-sm-0" type="submit">Apply</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="container">
+
+        <table class="table">
+            <thead class="" style="background-color: #787878;">
+                <tr>
+                    <th scope="col">User ID</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Position</th>
+                    <th scope="col">Type Job</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        <div class="form-group row">
+            <div class="col-sm-10">
+                <a href="/users/add" class="btn btn-dark my-2 my-sm-0" type="submit">Add</a>
+            </div>
+        </div>
+    </div>
+
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            <li class="page-item">
+                <a class="page-link" href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item"><a class="page-link" href="#">1</a></li>
+            <li class="page-item">
+                <a class="page-link" href="#" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+</div>
+
+<%- include("../partials/footer") %>
