@@ -5,12 +5,11 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 module.exports = (db) => {
-    
+
     // main page, filtering data/table, and showing data
     router.get('/', helpers.isLoggedIn, (req, res) => {
         let sql = `SELECT userid, email, password, CONCAT(firstname,' ',lastname) as name FROM users`;
-        
-        //filterring logic
+        //filter logic
         let result = [];
         const {
             cid,
@@ -21,28 +20,53 @@ module.exports = (db) => {
             email
         } = req.query;
 
-        if (cid && inputID){
+        if (cid && inputID) {
             result.push(`userid=${inputID}`);
         }
-        if ( cnama && nama){
+        if (cnama && nama) {
             result.push(` CONCAT(firstname,' ',lastname) like '%${nama}%'`)
         }
-        if ( cemail && email){
+        if (cemail && email) {
             result.push(`email like '%${email}%'`)
         }
 
-        if( result.length > 0 ) {
+        if (result.length > 0) {
             sql += ` WHERE ${result.join(' AND ')}`;
         }
         console.log(result);
         console.log(sql);
 
-        db.query( sql, (err, data) => {
-            let result = data.rows;
+        sql += ` ORDER BY userid`;
+        console.log(sql)
+        // end filter
+
+        // start logic for pagination
+        const page = req.query.page || 1;
+        const limit = 2;
+        const offset = (page - 1) * limit;
+
+        db.query(sql, (err, data) => {
             if (err) return res.send(err)
-            res.render('users/listUsers', {
-                user: req.session.user,
-                result,
+
+            const pages = Math.ceil(data.rows.length / limit);
+            const url = req.url == '/' ? '/?page=1' : req.url;
+
+            sql += ` LIMIT ${limit} OFFSET ${offset}`;
+            console.log(sql);
+            // end logic for pagination
+
+            db.query(sql, (err, data) => {
+                let result = data.rows;
+                if (err) return res.send(err)
+                res.render('users/listUsers', {
+                    user: req.session.user,
+                    result,
+                    url,
+                    pages,
+                    page,
+                    url,
+                    query : req.query
+                })
             })
         });
     });
@@ -55,7 +79,7 @@ module.exports = (db) => {
     });
 
     // post data
-    router.post('/add',helpers.isLoggedIn, (req, res) => {
+    router.post('/add', helpers.isLoggedIn, (req, res) => {
         const { email, password, firstname, lastname } = req.body;
         bcrypt.hash(password, saltRounds, function (err, hash) {
             if (err) return res.send(err)
@@ -69,7 +93,7 @@ module.exports = (db) => {
     // get user by id for editing
     router.get('/edit/:userid', helpers.isLoggedIn, (req, res) => {
         const { userid } = req.params
-        db.query(`SELECT * from users WHERE userid = $1`, [userid] , (err, data) => {
+        db.query(`SELECT * from users WHERE userid = $1`, [userid], (err, data) => {
             if (err) return res.send(err);
             let result = data.rows[0];
             res.render('users/edit', {
@@ -86,20 +110,20 @@ module.exports = (db) => {
         const { userid } = req.params;
         bcrypt.hash(password, saltRounds, function (err, hash) {
             if (err) return res.send(err)
-            db.query(`UPDATE users SET email = $1, password = $2, firstname = $3, lastname = $4 WHERE userid = $5`, 
-            [email, hash, firstname, lastname, userid] ,(err) => {
-                if (err) return res.send(err);
-                res.redirect('/users')
-            })
+            db.query(`UPDATE users SET email = $1, password = $2, firstname = $3, lastname = $4 WHERE userid = $5`,
+                [email, hash, firstname, lastname, userid], (err) => {
+                    if (err) return res.send(err);
+                    res.redirect('/users')
+                })
         })
     })
 
     // delete data
     router.get('/delete/:userid', helpers.isLoggedIn, (req, res) => {
-        const {userid} = req.params;
+        const { userid } = req.params;
         console.log(req.params)
         let sql = `DELETE FROM users WHERE userid = ${userid}`
-        db.query(sql, (err , data) => {
+        db.query(sql, (err, data) => {
             console.log(sql)
             if (err) return res.send(err)
             res.redirect('/users')
