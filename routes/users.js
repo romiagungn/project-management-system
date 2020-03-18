@@ -8,12 +8,41 @@ module.exports = (db) => {
     
     // main page, filtering data/table, and showing data
     router.get('/', helpers.isLoggedIn, (req, res) => {
-        db.query(`SELECT userid, email, password, CONCAT(firstname,' ',lastname) as name FROM users ORDER BY userid`, (err, data) => {
+        let sql = `SELECT userid, email, password, CONCAT(firstname,' ',lastname) as name FROM users`;
+        
+        //filterring logic
+        let result = [];
+        const {
+            cid,
+            inputID,
+            cnama,
+            nama,
+            cemail,
+            email
+        } = req.query;
+
+        if (cid && inputID){
+            result.push(`userid=${inputID}`);
+        }
+        if ( cnama && nama){
+            result.push(` CONCAT(firstname,' ',lastname) like '%${nama}%'`)
+        }
+        if ( cemail && email){
+            result.push(`email like '%${email}%'`)
+        }
+
+        if( result.length > 0 ) {
+            sql += ` WHERE ${result.join(' AND ')}`;
+        }
+        console.log(result);
+        console.log(sql);
+
+        db.query( sql, (err, data) => {
             let result = data.rows;
             if (err) return res.send(err)
             res.render('users/listUsers', {
                 user: req.session.user,
-                result
+                result,
             })
         });
     });
