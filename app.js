@@ -23,6 +23,7 @@ console.log("Successful connection to the database");
 var indexRouter = require('./routes/index')(pool);
 var projectRouter = require('./routes/project')(pool);
 var usersRouter = require('./routes/users')(pool);
+var profileRouter = require('./routes/profile')(pool);
 
 // setup app
 var app = express();
@@ -56,6 +57,7 @@ app.use(function (req, res, next) {
 app.use('/', indexRouter);
 app.use('/projects', projectRouter);
 app.use('/users', usersRouter);
+app.use('/profile', profileRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
