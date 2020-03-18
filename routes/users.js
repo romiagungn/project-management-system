@@ -5,29 +5,28 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 module.exports = (db) => {
+    
     // main page, filtering data/table, and showing data
-    router.get('/', helpers.isLoggedIn, (req, res, next) => {
-        db.query('SELECT * FROM users', (err, data) => {
-            let result = data.rows.map(item => {
-                return item
-            })
+    router.get('/', helpers.isLoggedIn, (req, res) => {
+        db.query(`SELECT userid, email, password, CONCAT(firstname,' ',lastname) as name FROM users ORDER BY userid`, (err, data) => {
+            let result = data.rows;
             if (err) return res.send(err)
             res.render('users/listUsers', {
                 user: req.session.user,
-                query: req.query,
                 result
             })
         });
     });
 
     // route to add data page
-    router.get('/add', helpers.isLoggedIn, (req, res, next) => {
+    router.get('/add', helpers.isLoggedIn, (req, res) => {
         res.render('users/add', {
             title: "PMS Dashboard"
         });
     });
+
     // post data
-    router.post('/add', function (req, res, next) {
+    router.post('/add',helpers.isLoggedIn, (req, res) => {
         const { email, password, firstname, lastname } = req.body;
         bcrypt.hash(password, saltRounds, function (err, hash) {
             if (err) return res.send(err)
@@ -39,20 +38,44 @@ module.exports = (db) => {
     });
 
     // get user by id for editing
-    router.get('/edit/:userid', (req, res, next) => {
+    router.get('/edit/:userid', helpers.isLoggedIn, (req, res) => {
         const { userid } = req.params
-        let sql = `SELECT * from USERS WHERE userid = ${userid} `
-        db.query(sql, (err, data) => {
-            console.log(sql)
+        db.query(`SELECT * from users WHERE userid = $1`, [userid] , (err, data) => {
             if (err) return res.send(err);
             let result = data.rows[0];
             res.render('users/edit', {
                 title: "PMS Dashboard",
                 result,
-                query : req.query
+                query: req.query
             });
         });
     });
+
+    // update data edit
+    router.post('/edit/:userid', helpers.isLoggedIn, (req, res) => {
+        const { email, password, firstname, lastname } = req.body
+        const { userid } = req.params;
+        bcrypt.hash(password, saltRounds, function (err, hash) {
+            if (err) return res.send(err)
+            db.query(`UPDATE users SET email = $1, password = $2, firstname = $3, lastname = $4 WHERE userid = $5`, 
+            [email, hash, firstname, lastname, userid] ,(err) => {
+                if (err) return res.send(err);
+                res.redirect('/users')
+            })
+        })
+    })
+
+    // delete data
+    router.get('/delete/:userid', helpers.isLoggedIn, (req, res) => {
+        const {userid} = req.params;
+        console.log(req.params)
+        let sql = `DELETE FROM users WHERE userid = ${userid}`
+        db.query(sql, (err , data) => {
+            console.log(sql)
+            if (err) return res.send(err)
+            res.redirect('/users')
+        })
+    })
 
     return router;
 }
