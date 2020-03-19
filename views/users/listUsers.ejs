@@ -51,7 +51,7 @@
                     <div class="col-sm-10">
                         <div class="form-check">
                             <input class="form-check-input" type="radio" id="gridRadios1" name="inputTypeJob"
-                                value="Full Time" checked>
+                                value="Full Time" >
                             <label class="form-check-label" for="gridRadios1">
                                 Full Time
                             </label>
@@ -123,8 +123,8 @@
                     <th scope="col">User ID</th>
                     <th scope="col">Email</th>
                     <th scope="col">Name</th>
-                    <!-- <th scope="col">Position</th>
-                    <th scope="col">Type Job</th> -->
+                    <th scope="col">Position</th>
+                    <th scope="col">Type Job</th>
                     <th scope="col">Action</th>
                 </tr>
             </thead>
@@ -134,9 +134,10 @@
                     <th scope="row"><%= item.userid %></th>
                     <td><%= item.email %></td>
                     <td><%= item.name %></td>
+                    <td><%= item.position %></td>
+                    <td><%= item.isfulltime %></td>
                     <td>
-                        <a class="btn btn-dark my-2 my-sm-0" href="/users/edit/<%= item.userid %>"
-                            onclick="return confirm('Are you sure you want to edit this item?');" role="button">Edit</a>
+                        <a class="btn btn-dark my-2 my-sm-0" href="/users/edit/<%= item.userid %>" role="button">Edit</a>
                         <a class="btn btn-dark my-2 my-sm-0"
                             onclick="return confirm('Are you sure you want to delete this item?');"
                             href="/users/delete/<%= item.userid %>">Delete</a>
@@ -156,8 +157,8 @@
                     Previous
                 </a>
             </li>
-            <% for (let i = 1; i <= page; i++) { %>
-            <li class="page-item <%= pages == i ? 'active' : '' %>">
+            <% for (let i = 1; i <= pages; i++) { %>
+            <li class="page-item <%= page == i ? 'active' : '' %>">
                 <a class="page-link" href="/users<%= url.replace(`page=${parseInt(page)}`, `page=${i}`) %>"> <%= i %>
                 </a>
             </li>

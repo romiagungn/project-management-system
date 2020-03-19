@@ -11,7 +11,8 @@
         <div class="container form-group row">
             <label for="userid" class="col-sm-2 col-form-label"> ID </label>
             <div class="col-sm-10">
-                <input type="text" class="form-control" name='userid' placeholder="ID" value="<%= result.userid %>" disabled>
+                <input type="text" class="form-control" name='userid' placeholder="ID" value="<%= result.userid %>"
+                    disabled>
             </div>
         </div>
         <div class="container form-group row">
@@ -23,46 +24,52 @@
         <div class="container form-group row">
             <label for="inputID" class="col-sm-2 col-form-label"> Password </label>
             <div class="col-sm-10">
-                <input type="password" class="form-control" name='password' placeholder="Passwordnya ilang masukin ulang" >
+                <input type="password" class="form-control" name='password'
+                    placeholder="Passwordnya ilang masukin ulang">
             </div>
         </div>
         <div class="container form-group row">
             <label for="inputID" class="col-sm-2 col-form-label"> First Name </label>
             <div class="col-sm-10">
-                <input type="text" class="form-control" name='firstname' placeholder="First Name" value="<%= result.firstname %>">
+                <input type="text" class="form-control" name='firstname' placeholder="First Name"
+                    value="<%= result.firstname %>">
             </div>
         </div>
         <div class="container form-group row">
             <label for="inputID" class="col-sm-2 col-form-label"> Last Name </label>
             <div class="col-sm-10">
-                <input type="text" class="form-control" name='lastname' placeholder="Last Name" value="<%= result.lastname %>">
+                <input type="text" class="form-control" name='lastname' placeholder="Last Name"
+                    value="<%= result.lastname %>">
             </div>
         </div>
         <div class="container form-group row">
             <label for="inputBoolean" class="col-sm-2 col-form-label"> Position </label>
             <div class="col-sm-10">
-                <select class="custom-select" name="inputMember">
+                <select class="custom-select" name="position">
                     <option value="">Choose Position</option>
-                    <option value="">Quality Assurance</option>
-                    <option value="">Manager</option>
-                    <option value="">Software Developer</option>
+                    <option value="Quality Assurance" <%= result.position == 'Quality Assurance' ? 'selected' : '' %>>
+                        Quality Assurance</option>
+                    <option value="Manager" <%= result.position == 'Manager' ? 'selected' : '' %>>Manager</option>
+                    <option value="Software Developer" <%= result.position == 'Software Developer' ? 'selected' : '' %>>
+                        Software Developer</option>
                 </select>
             </div>
         </div>
+
         <fieldset class="form-group">
-            <div class="container form-group row">
-                <legend class="col-form-label col-sm-2 pt-0"> Type Job </legend>
+            <div class="container row">
+                <legend class="col-form-label col-sm-2 pt-0">Job Type</legend>
                 <div class="col-sm-10">
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" id="gridRadios1" name="inputTypeJob"
-                            value="Full Time" checked>
+                        <input class="form-check-input" type="radio" name="job" id="gridRadios1"
+                            value="Full time" <%= result.isfulltime == 'Full time' ? 'checked' : '' %>>
                         <label class="form-check-label" for="gridRadios1">
                             Full Time
                         </label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" id="gridRadios2" name="inputTypeJob"
-                            value="Part Time">
+                        <input class="form-check-input" type="radio" name="job" id="gridRadios2"
+                            value="Part time" <%= result.isfulltime == 'Part time' ? 'checked' : '' %>>
                         <label class="form-check-label" for="gridRadios2">
                             Part Time
                         </label>
@@ -70,6 +77,7 @@
                 </div>
             </div>
         </fieldset>
+
         <div class="container form-group row">
             <div class="col-sm-10">
                 <button class="btn btn-dark my-2 my-sm-0" type="submit">Update</button>
