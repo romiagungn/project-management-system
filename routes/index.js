@@ -11,17 +11,6 @@ module.exports = (db) => {
     });
   });
 
-  router.post('/register', function (req, res, next) {
-    const { email, password, firstname, lastname } = req.body;
-    bcrypt.hash(password, saltRounds, function (err, hash) {
-      if (err) return res.send(err)
-      db.query('INSERT INTO users (email, password, firstname, lastname) VALUES ($1, $2, $3, $4)', [email, hash, firstname, lastname], (err, data) => {
-        if (err) return res.send(err)
-        res.json(data.rows);
-      });
-    });
-  });
-
   router.post('/login', (req, res) => {
     const { email, password } = req.body
     db.query(`SELECT * FROM users WHERE email = $1`, [email], (err, data) => {
