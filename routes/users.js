@@ -8,7 +8,7 @@ module.exports = (db) => {
 
     // main page, filtering data/table, and showing data
     router.get('/', helpers.isLoggedIn, (req, res) => {
-        let sql = `SELECT userid, email, password, CONCAT(firstname,' ',lastname) as name FROM users`;
+        let sql = `SELECT userid, email, password, CONCAT(firstname,' ',lastname) as name, position, isfulltime FROM users`;
         //filter logic
         let result = [];
         const {
@@ -33,16 +33,13 @@ module.exports = (db) => {
         if (result.length > 0) {
             sql += ` WHERE ${result.join(' AND ')}`;
         }
-        console.log(result);
-        console.log(sql);
 
         sql += ` ORDER BY userid`;
-        console.log(sql)
         // end filter
 
         // start logic for pagination
         const page = req.query.page || 1;
-        const limit = 2;
+        const limit = 3;
         const offset = (page - 1) * limit;
 
         db.query(sql, (err, data) => {
@@ -52,7 +49,6 @@ module.exports = (db) => {
             const url = req.url == '/' ? '/?page=1' : req.url;
 
             sql += ` LIMIT ${limit} OFFSET ${offset}`;
-            console.log(sql);
             // end logic for pagination
 
             db.query(sql, (err, data) => {
@@ -65,7 +61,7 @@ module.exports = (db) => {
                     pages,
                     page,
                     url,
-                    query : req.query
+                    query: req.query
                 })
             })
         });
@@ -80,10 +76,11 @@ module.exports = (db) => {
 
     // post data
     router.post('/add', helpers.isLoggedIn, (req, res) => {
-        const { email, password, firstname, lastname } = req.body;
+        const { email, password, firstname, lastname, position } = req.body;
+        const isfulltime = req.body.job == 'Full Time' ? 'Full time' : 'Part time';
         bcrypt.hash(password, saltRounds, function (err, hash) {
             if (err) return res.send(err)
-            db.query('INSERT INTO users (email, password, firstname, lastname) VALUES ($1, $2, $3, $4)', [email, hash, firstname, lastname], (err, data) => {
+            db.query('INSERT INTO users (email, password, firstname, lastname, position, isfulltime ) VALUES ($1, $2, $3, $4, $5 , $6)', [email, hash, firstname, lastname, position, isfulltime], (err, data) => {
                 if (err) return res.send(err)
                 res.redirect('/users');
             });
@@ -106,15 +103,16 @@ module.exports = (db) => {
 
     // update data edit
     router.post('/edit/:userid', helpers.isLoggedIn, (req, res) => {
-        const { email, password, firstname, lastname } = req.body
+        const { email, password, firstname, lastname, position, job } = req.body
         const { userid } = req.params;
         bcrypt.hash(password, saltRounds, function (err, hash) {
             if (err) return res.send(err)
-            db.query(`UPDATE users SET email = $1, password = $2, firstname = $3, lastname = $4 WHERE userid = $5`,
-                [email, hash, firstname, lastname, userid], (err) => {
-                    if (err) return res.send(err);
-                    res.redirect('/users')
-                })
+            let sql = `UPDATE users SET email = '${email}', password = '${hash}', firstname = '${firstname}', lastname = '${lastname}', position = '${position}', isfulltime='${job == 'Full Time' ? 'Full time' : 'Part time'}' WHERE userid = ${userid}`;
+            console.log(sql)
+            db.query(sql, (err) => {
+                if (err) return res.send(err);
+                res.redirect('/users')
+            })
         })
     })
 
