@@ -77,7 +77,7 @@ module.exports = (db) => {
     // post data
     router.post('/add', helpers.isLoggedIn, (req, res) => {
         const { email, password, firstname, lastname, position } = req.body;
-        const isfulltime = req.body.job == 'Full Time' ? 'Full time' : 'Part time';
+        const isfulltime = req.body.job == 'Full Time' ? 'Full Time' : 'Part Time';
         bcrypt.hash(password, saltRounds, function (err, hash) {
             if (err) return res.send(err)
             db.query('INSERT INTO users (email, password, firstname, lastname, position, isfulltime ) VALUES ($1, $2, $3, $4, $5 , $6)', [email, hash, firstname, lastname, position, isfulltime], (err, data) => {
@@ -107,7 +107,7 @@ module.exports = (db) => {
         const { userid } = req.params;
         bcrypt.hash(password, saltRounds, function (err, hash) {
             if (err) return res.send(err)
-            let sql = `UPDATE users SET email = '${email}', password = '${hash}', firstname = '${firstname}', lastname = '${lastname}', position = '${position}', isfulltime='${job == 'Full Time' ? 'Full time' : 'Part time'}' WHERE userid = ${userid}`;
+            let sql = `UPDATE users SET email = '${email}', password = '${hash}', firstname = '${firstname}', lastname = '${lastname}', position = '${position}', isfulltime='${job == 'Full Time' ? 'Full Time' : 'Part Time'}' WHERE userid = ${userid}`;
             console.log(sql)
             db.query(sql, (err) => {
                 if (err) return res.send(err);
