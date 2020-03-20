@@ -1,63 +1,57 @@
-#body-row {
-  margin-left:0;
-  margin-right:0;
-}
-#sidebar-container {
-  min-height: 100vh;   
-  background-color: #333;
-  padding: 0;
-}
-
-
-.sidebar-expanded {
-  width: 230px;
-}
-.sidebar-collapsed {
-  width: 60px;
+/*!
+ * Start Bootstrap - Simple Sidebar (https://startbootstrap.com/template-overviews/simple-sidebar)
+ * Copyright 2013-2019 Start Bootstrap
+ * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap-simple-sidebar/blob/master/LICENSE)
+ */
+ body {
+  overflow-x: hidden;
 }
 
-
-#sidebar-container .list-group a {
-  height: 50px;
-  color: white;
+#sidebar-wrapper {
+  min-height: 100vh;
+  margin-left: -15rem;
+  -webkit-transition: margin .25s ease-out;
+  -moz-transition: margin .25s ease-out;
+  -o-transition: margin .25s ease-out;
+  transition: margin .25s ease-out;
 }
 
-
-#sidebar-container .list-group .sidebar-submenu a {
-  height: 45px;
-  padding-left: 30px;
-}
-.sidebar-submenu {
-  font-size: 0.9rem;
+#sidebar-wrapper .sidebar-heading {
+  padding: 0.875rem 1.25rem;
+  font-size: 1.2rem;
 }
 
-
-.sidebar-separator-title {
-  background-color: #333;
-  height: 35px;
-}
-.sidebar-separator {
-  background-color: #333;
-  height: 25px;
-}
-.logo-separator {
-  background-color: #333;    
-  height: 60px;
+#sidebar-wrapper .list-group {
+  width: 15rem;
 }
 
-
-#sidebar-container .list-group .list-group-item[aria-expanded="false"] .submenu-icon::after {
-content: " \f0d7";
-font-family: FontAwesome;
-display: inline;
-text-align: right;
-padding-left: 10px;
+#page-content-wrapper {
+  min-width: 100vw;
 }
 
-#sidebar-container .list-group .list-group-item[aria-expanded="true"] .submenu-icon::after {
-content: " \f0da";
-font-family: FontAwesome;
-display: inline;
-text-align: right;
-padding-left: 10px;
+#wrapper.toggled #sidebar-wrapper {
+  margin-left: 0;
+}
+
+@media (min-width: 768px) {
+  #sidebar-wrapper {
+    margin-left: 0;
+  }
+
+  #page-content-wrapper {
+    min-width: 0;
+    width: 100%;
+  }
+
+  #wrapper.toggled #sidebar-wrapper {
+    margin-left: -15rem;
+  }
+}
+
+nav {
+  font-family: 'Dosis';
+}
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #FFFAFA;
 }
