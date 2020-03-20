@@ -17,7 +17,11 @@ module.exports = (db) => {
             cnama,
             nama,
             cemail,
-            email
+            email,
+            cposition,
+            position,
+            cjob,
+            job
         } = req.query;
 
         if (cid && inputID) {
@@ -29,11 +33,18 @@ module.exports = (db) => {
         if (cemail && email) {
             result.push(`email like '%${email}%'`)
         }
+        if (cposition && position) {
+            result.push(`position='${position}'`)
+        }
+        if (cjob && job) {
+            result.push(`isfulltime='${job}'`)
+        }
 
         if (result.length > 0) {
             sql += ` WHERE ${result.join(' AND ')}`;
         }
-
+        console.log(sql)
+        console.log(result)
         sql += ` ORDER BY userid`;
         // end filter
 
