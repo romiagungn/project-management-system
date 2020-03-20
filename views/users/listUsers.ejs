@@ -12,52 +12,53 @@
             <input type="hidden" name="page" value="1">
             <div class="container form-group row">
                 <label for="inputID" class="col-sm-2 col-form-label">
-                    <input type="checkbox" name="cid"> ID</label>
+                    <input type="checkbox" id="inputID" name="cid"> ID</label>
                 <div class="col-sm-10">
                     <input type="text" class="form-control" name='inputID' placeholder="ID">
                 </div>
             </div>
             <div class="container form-group row">
-                <label for="inputID" class="col-sm-2 col-form-label">
-                    <input type="checkbox" name="cnama"> Name </label>
+                <label for="nama" class="col-sm-2 col-form-label">
+                    <input type="checkbox" id="nama" name="cnama"> Name </label>
                 <div class="col-sm-10">
                     <input type="text" class="form-control" name='nama' placeholder="Name">
                 </div>
             </div>
             <div class="container form-group row">
-                <label for="inputID" class="col-sm-2 col-form-label">
-                    <input type="checkbox" name="cemail"> Email </label>
+                <label for="email" class="col-sm-2 col-form-label">
+                    <input type="checkbox" id="email" name="cemail"> Email </label>
                 <div class="col-sm-10">
                     <input type="text" class="form-control" name='email' placeholder="Name">
                 </div>
             </div>
             <div class="container form-group row">
-                <label for="inputBoolean" class="col-sm-2 col-form-label"> <input type="checkbox" name="cmember">
-                    Position</label>
+                <label for="inputPosition" class="col-sm-2 col-form-label"> 
+                    <input type="checkbox" id="inputPosition" name="cposition"> Position
+                </label>
                 <div class="col-sm-10">
-                    <select class="custom-select" name="inputMember">
+                    <select class="custom-select" name="position">
                         <option value="">Choose Position</option>
-                        <option value="">Quality Assurance</option>
-                        <option value="">Manager</option>
-                        <option value="">Software Developer</option>
+                        <option value="Quality Assurance">Quality Assurance</option>
+                        <option value="Manager">Manager</option>
+                        <option value="Software Developer">Software Developer</option>
                     </select>
                 </div>
             </div>
             <fieldset class="form-group">
                 <div class="container form-group row">
                     <legend class="col-form-label col-sm-2 pt-0">
-                        <input type="checkbox" name="ctypejob"> Type Job
+                        <input type="checkbox" name="cjob"> Type Job
                     </legend>
                     <div class="col-sm-10">
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" id="gridRadios1" name="inputTypeJob"
+                            <input class="form-check-input" type="radio" id="gridRadios1" name="job"
                                 value="Full Time" >
                             <label class="form-check-label" for="gridRadios1">
                                 Full Time
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" id="gridRadios2" name="inputTypeJob"
+                            <input class="form-check-input" type="radio" id="gridRadios2" name="job"
                                 value="Part Time">
                             <label class="form-check-label" for="gridRadios2">
                                 Part Time
