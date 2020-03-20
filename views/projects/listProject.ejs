@@ -8,6 +8,7 @@
         <h3>Filters</h3>
         <hr>
         <form id="form-filter" method="GET">
+            <input type="hidden" name="page" value="1">
             <div class="container form-group row">
                 <label for="inputID" class="col-sm-2 col-form-label">
                     <input type="checkbox" name="checkID"> ID</label>
@@ -48,34 +49,38 @@
             <hr>
             <div class="form-group row">
                 <div class="col-sm-2" style=>Columns</div>
-                <div class="col-sm-10">
+                <div class="col-sm-2">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="checkID" name="checkid" value="true">
+                        <input class="form-check-input" type="checkbox" id="cid" name="cid" value="true">
                         <label class="form-check-label" for="checkID">
                             ID
                         </label>
                     </div>
+                </div>
+                <div class="col-sm-2">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="checkName" name="checkname" value="true">
+                        <input class="form-check-input" type="checkbox" id="cname" name="cname" value="true">
                         <label class="form-check-label" for="checkName">
                             Name
                         </label>
                     </div>
+                </div>
+                <div class="col-sm-2">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="checkMember" name="checkmember"
+                        <input class="form-check-input" type="checkbox" id="cmember" name="cmember"
                             value="true">
-                        <label class="form-check-label" for="checkMember">
+                        <label class="form-check-label" for="cmember">
                             Member
                         </label>
                     </div>
                 </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-10">
+                <div class="col-sm-2">
                     <button class="btn btn-dark my-2 my-sm-0" type="submit">Apply</button>
+                    <a href="/users/add" class="btn btn-dark my-2 my-sm-0" type="submit">Add</a>
                 </div>
             </div>
         </form>
+        <hr>
     </div>
 
     <div class="container">
@@ -90,24 +95,9 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <th scope="row">1</th>
-                    <td>Mark</td>
-                    <td>Otto</td>
-                    <td>@mdo</td>
-                </tr>
-                <tr>
-                    <th scope="row">2</th>
-                    <td>Jacob</td>
-                    <td>Thornton</td>
-                    <td>@fat</td>
-                </tr>
-                <tr>
-                    <th scope="row">3</th>
-                    <td>Larry</td>
-                    <td>the Bird</td>
-                    <td>@twitter</td>
-                </tr>
+
+
+                
             </tbody>
         </table>
         <div class="form-group row">
