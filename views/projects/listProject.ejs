@@ -11,23 +11,23 @@
             <input type="hidden" name="page" value="1">
             <div class="container form-group row">
                 <label for="inputID" class="col-sm-2 col-form-label">
-                    <input type="checkbox" name="checkID"> ID</label>
+                    <input type="checkbox" id="inputID" name="cid"> ID</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" name='inputID' placeholder="ID">
+                    <input type="text" class="form-control" name='id' placeholder="ID">
                 </div>
             </div>
             <div class="container form-group row">
-                <label for="inputID" class="col-sm-2 col-form-label">
-                    <input type="checkbox" name="checkID"> Name </label>
+                <label for="inputName" class="col-sm-2 col-form-label">
+                    <input type="checkbox" id ="inputName" name="cnama"> Name </label>
                 <div class="col-sm-10">
                     <input type="text" class="form-control" name='nama' placeholder="Name">
                 </div>
             </div>
             <div class="container form-group row">
-                <label for="inputBoolean" class="col-sm-2 col-form-label"> <input type="checkbox" name="checkMember">
-                    Member</label>
+                <label for="Member" class="col-sm-2 col-form-label"> 
+                    <input type="checkbox" id="Member" name="cmember"> Member </label>
                 <div class="col-sm-10">
-                    <select class="custom-select" name="inputMember">
+                    <select class="custom-select" name="member">
                         <option value="">Choose Member</option>
                         <option value=""></option>
                     </select>
@@ -51,24 +51,23 @@
                 <div class="col-sm-2" style=>Columns</div>
                 <div class="col-sm-2">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="cid" name="cid" value="true">
-                        <label class="form-check-label" for="checkID">
+                        <input class="form-check-input" type="checkbox" id="cid" name="checkid" value="true" checked>
+                        <label class="form-check-label" for="cid">
                             ID
                         </label>
                     </div>
                 </div>
                 <div class="col-sm-2">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="cname" name="cname" value="true">
-                        <label class="form-check-label" for="checkName">
+                        <input class="form-check-input" type="checkbox" id="cname" name="checkname" value="true" checked>
+                        <label class="form-check-label" for="cname">
                             Name
                         </label>
                     </div>
                 </div>
                 <div class="col-sm-2">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="cmember" name="cmember"
-                            value="true">
+                        <input class="form-check-input" type="checkbox" id="cmember" name="checkmember" value="true" checked>
                         <label class="form-check-label" for="cmember">
                             Member
                         </label>
@@ -76,7 +75,6 @@
                 </div>
                 <div class="col-sm-2">
                     <button class="btn btn-dark my-2 my-sm-0" type="submit">Apply</button>
-                    <a href="/users/add" class="btn btn-dark my-2 my-sm-0" type="submit">Add</a>
                 </div>
             </div>
         </form>
@@ -95,8 +93,10 @@
                 </tr>
             </thead>
             <tbody>
-
-
+                <td><a href="/projects/overview"># </a></td>
+                <td>Romie</td>
+                <td>YA</td>
+                <td>Tidak</td>
                 
             </tbody>
         </table>

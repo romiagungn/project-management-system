@@ -1,0 +1,53 @@
+<%- include("../partials/sidebar") %>
+<main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+    <div class="container-fluid">
+        <div class="chartjs-size-monitor-expand"
+            style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;">
+            <div style="position:absolute;width:1000000px;height:1000000px;left:0;top:0"></div>
+        </div>
+        <div class="chartjs-size-monitor-shrink"
+            style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;">
+            <div style="position:absolute;width:200%;height:200%;left:0; top:0"></div>
+        </div>
+        <br>
+        <h2 class="text-center"> <%= title %> <small class="text-muted">#1 Web Project - Company Profile</small> 
+        </h2>
+        <hr>
+        <br>
+
+
+        <div class="container">
+            <div class="card">
+                <div class="card-body">
+                    <h5>Issue Tracking</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Bug
+                            <span class="badge badge-danger badge-pill">a/1</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Feature
+                            <span class="badge badge-primary badge-pill"></span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Support
+                            <span class="badge badge-success badge-pill"></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <br>
+        <div class="container">
+            <div class="card">
+                <div class="card-body">
+                    <h5>Member</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item"></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <%- include("../partials/footer") %>
+    </div>

@@ -1,0 +1,264 @@
+<%- include("../../partials/sidebar") %>
+<main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+    <div class="container-fluid">
+        <div class="chartjs-size-monitor-expand"
+            style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;">
+            <div style="position:absolute;width:1000000px;height:1000000px;left:0;top:0"></div>
+        </div>
+        <div class="chartjs-size-monitor-shrink"
+            style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;">
+            <div style="position:absolute;width:200%;height:200%;left:0; top:0"></div>
+        </div>
+        <br>
+        <h2 class="text-center"> <%= title %> <small class="text-muted">#1 Web Project - Company Profile</small> 
+        </h2>
+        <hr>
+        <br>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                <h3>Filters</h3>
+                <hr>
+                <form id="form-filter" method="GET">
+
+                    <input type="hidden" name="page" value="1">
+                    <div class="container form-group row">
+                        <label for="inputIssues" class="col-sm-2 col-form-label">
+                            <input type="checkbox" id="inputIssues" name="cissues"> ID</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name='issues' placeholder="Issues ID">
+                        </div>
+                    </div>
+
+                    <div class="container form-group row">
+                        <label for="inputSubject" class="col-sm-2 col-form-label">
+                            <input type="checkbox" id="inputSubject" name="csubjects"> Subject </label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name='subjects' placeholder="Subject Issues">
+                        </div>
+                    </div>
+
+                    <div class="container form-group row">
+                        <label for="inputTracker" class="col-sm-2 col-form-label"> 
+                            <input type="checkbox" id="inputTracker" name="ctrackers">
+                            Tracker</label>
+                        <div class="col-sm-10">
+                            <select class="custom-select" id name="tracker">
+                                <option value="" >Choose Issues Tracker</option>
+                                <option value="Quality Assurance">Quality Assurance</option>
+                                <option value="Manager">Manager</option>
+                                <option value="Software Developer">Software Developer</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="container form-group row">
+                        <div class="col-sm-10">
+                            <button class="btn btn-dark my-2 my-sm-0" type="submit">Search</button>
+                            <a href="" class="btn btn-dark my-2 my-sm-0" type="submit">Show All</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" action="">
+                    <h3>Options</h3>
+                    <hr>
+                    <div class="form-group row">
+                        <div class="col-sm-2" style=>Columns</div>
+                        <div class="col-sm-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cid" name="checkid" value="true" checked>
+                                <label class="form-check-label" for="cid">
+                                    ID
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="ctracker" name="checktracker" value="true" checked>
+                                <label class="form-check-label" for="ctracker">
+                                    Tracker
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="csubject" name="checksubject" value="true" checked>
+                                <label class="form-check-label" for="csubject">
+                                    Subject
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cdescription" name="checkdescription" value="true" checked>
+                                <label class="form-check-label" for="cdescription">
+                                    Description
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-sm-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cstatus" name="checkstatus" value="true"
+                                    checked>
+                                <label class="form-check-label" for="cstatus">
+                                    Status
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cpriority" name="checkpriority" value="true"
+                                    checked>
+                                <label class="form-check-label" for="cpriority">
+                                    Priority
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cassignee" name="checkassignee" value="true"
+                                    checked>
+                                <label class="form-check-label" for="cassignee">
+                                    Assignee
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cstartdate" name="checkstartdate" value="true"
+                                    checked>
+                                <label class="form-check-label" for="cstartdate">
+                                    Start Date
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cduedate" name="checkduedate"
+                                    value="true" checked>
+                                <label class="form-check-label" for="cduedate">
+                                    Due Date
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cestimated" name="checkestimated"
+                                    value="true" checked>
+                                <label class="form-check-label" for="cestimated">
+                                    Estimated
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cdone" name="checkdone"
+                                    value="true" checked>
+                                <label class="form-check-label" for="cdone">
+                                    Done
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cauthor" name="checkauthor"
+                                    value="true" checked>
+                                <label class="form-check-label" for="cauthor">
+                                    Author
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-sm-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cspentime" name="checkspentime"
+                                    value="true" checked>
+                                <label class="form-check-label" for="cspentime">
+                                    Spent Time
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cfile" name="checkfile"
+                                    value="true" checked>
+                                <label class="form-check-label" for="cfile">
+                                    File
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="ctarget" name="checktarget"
+                                    value="true" checked>
+                                <label class="form-check-label" for="ctarget">
+                                    Target Version
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="ccreated" name="checkcreated"
+                                    value="true" checked>
+                                <label class="form-check-label" for="ccreated">
+                                    Created Date
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cupdate" name="checkestimated"
+                                    value="true" checked>
+                                <label class="form-check-label" for="cestimated">
+                                    Update Date
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cclosed" name="checkclosed"
+                                    value="true" checked>
+                                <label class="form-check-label" for="cclosed">
+                                    Closed Date
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cparentask" name="checkparentask"
+                                    value="true" checked>
+                                <label class="form-check-label" for="cparentask">
+                                    Parent Task
+                                </label>
+                            </div>
+                        </div>
+
+                    </div>
+
+                        <div class="form-group-row">
+                            <button class="btn btn-dark my-2 my-sm-0" type="submit">Apply</button>
+                            <a href="/projects/members/add" class="btn btn-dark my-2 my-sm-0" type="submit">Add Issues</a>
+                        </div>
+
+                </form>
+                <br>
+                <table class="table">
+                    <thead class="" style="background-color: #787878;">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Position</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item">
+                        <a class="page-link" href="#" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+        </div>
+    </div>
+    <%- include("../../partials/footer") %>
+</div>
+
+</div>

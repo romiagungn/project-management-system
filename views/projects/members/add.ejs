@@ -1,0 +1,71 @@
+<%- include("../../partials/sidebar") %>
+<div class="col-9">
+    <br>
+    <h2 class="text-center"> MEMBERS <small class="text-muted"> WELCOME ROMIE </small>
+    </h2>
+    <hr>
+    <br>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                <h3><%= title %></h3>
+                <hr>
+                <form method="POST">
+
+                    <div class="form-group row">
+                        <label for="inputBoolean" class="col-sm-2 col-form-label">
+                            Members</label>
+                        <div class="col-sm-10">
+                            <select class="custom-select" name="inputMember" required>
+                                <option value="">Choose Member</option>
+                                <option value=""> </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <fieldset class="form-group">
+                        <div class="row">
+                            <legend class="col-form-label col-sm-2 pt-0">Position</legend>
+                            <div class="col-sm-10">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="inputPosition" id="gridRadios1"
+                                        value="Manager">
+                                    <label class="form-check-label" for="gridRadios1">
+                                        Manager
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="inputPosition" id="gridRadios2"
+                                        value="Software Developer">
+                                    <label class="form-check-label" for="gridRadios2">
+                                        Software Developer
+                                    </label>
+                                </div>
+                                <div class="form-check disabled">
+                                    <input class="form-check-input" type="radio" name="inputPosition" id="gridRadios3"
+                                        value="Quality Assurance">
+                                    <label class="form-check-label" for="gridRadios3">
+                                        Quality Assurance
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <div class="form-group row">
+                        <div class="col-sm-10">
+                            <button type="submit" class="btn btn-dark my-2 my-sm-0">Add</button>
+                            <a class="btn btn-dark my-2 my-sm-0" href="/projects/members" role="button">Back</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <br>
+
+    <%- include("../../partials/footer") %>
+</div>
+
+</div>
