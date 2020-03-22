@@ -3,9 +3,6 @@
  * Copyright 2013-2019 Start Bootstrap
  * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap-simple-sidebar/blob/master/LICENSE)
  */
- body {
-  overflow-x: hidden;
-}
 
 #sidebar-wrapper {
   min-height: 100vh;
@@ -54,4 +51,10 @@ nav {
 body {
   font-family: 'Poppins', sans-serif;
   background-color: #FFFAFA;
+  font-size: .875rem;
+  overflow-x: hidden;
+}
+
+[role="main"] {
+  padding-top: 60px; /* Space for fixed navbar */
 }
