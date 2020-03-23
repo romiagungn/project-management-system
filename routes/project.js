@@ -5,8 +5,18 @@ const helpers = require('../helpers/util')
 module.exports = (db) => {
     // get page project
     router.get('/', helpers.isLoggedIn, (req, res) => {
-        res.render('projects/listProject', {
-            user: req.session.user
+        let sql = `SELECT projects.projectid , projects.name , members.role, CONCAT(firstname,' ',lastname) AS nama FROM projects 
+        JOIN members ON members.projectid = projects.projectid
+        JOIN users ON members.userid = users.userid`;
+        db.query(sql, (err, dataProject) => {
+            if(err) res.status(500).json(err)
+            let result = dataProject.rows;
+            res.render('projects/listProject', {
+                user: req.session.user,
+                title: 'Dasrboard List Projects',
+                url: 'project',
+                result
+            })
         });
     });
 
@@ -21,23 +31,44 @@ module.exports = (db) => {
                 user: req.session.user,
                 title: 'DASBOARD PMS',
                 url: 'project',
-                result
+                result,
+                projectMessage: req.flash('projectMessage')
             })
         });
     });
 
     // post add project
     router.post('/add', helpers.isLoggedIn, (req, res) => {
-        const { nameproject } = req.body;
-        const sql = `INSERT INTO projects name VALUES (${nameproject})`;
-        console.log(sql)
-        db.query(sql, (err, dataProject) => {
-            if (err) res.status(500).json(err)
-            let result = dataProject.rows;
+        const { name, member } = req.body;
+        if (name && member) {
+            const insertId = `INSERT INTO projects (name) VALUES ('${name}')`;
+            console.log(insertId)
+            db.query(insertId, (err, dataProject) => {
 
-            res.redirect('/projects')
-        })
+                let selectidMax = `SELECT MAX (projectid) FROM projects`;
+                db.query(selectidMax, (err, dataMax) => {
+                    let insertidMax = dataMax.rows[0].max;
+                    console.log(insertidMax);
+                    let insertMember = 'INSERT INTO members (userid, role, projectid) VALUES '
+                    if (typeof member == 'string') {
+                        insertMember += `(${member}, ${insertidMax});`
+                    } else {
+                        let members = member.map(item => {
+                            return `(${item}, ${insertidMax})`
+                        }).join(',')
+                        insertMember += `${members}`;
+                    }
+                    db.query(insertMember, (err, dataSelect) => {
+                        res.redirect('/projects')
+                    })
+                })
+            })
+        } else {
+            req.flash('projectMessage', 'Please Add Members');
+            res.redirect('/project/add')
+        }
     })
+
 
 
     //get page project/ overview
@@ -73,7 +104,6 @@ module.exports = (db) => {
     //get page project/ members / add
     router.get('/members/add', helpers.isLoggedIn, (req, res) => {
         res.render('projects/members/add', {
-            user: req.session.user,
             title: 'Dasboard Members Add'
         })
     })
@@ -85,6 +115,13 @@ module.exports = (db) => {
             title: 'Darsboard Issues',
             url: 'project',
             url2: 'issues'
+        })
+    })
+
+    //get page project/ Issuess / add
+    router.get('/issues/add', helpers.isLoggedIn, (req, res) => {
+        res.render('projects/issues/add', {
+            title: 'Darsboard Issues Add'
         })
     })
 
