@@ -1,83 +1,92 @@
 <%- include("../partials/navbar") %>
-
+<main role="main" class="flex-shrink-0"></main>
 <div class="container-fluid" style="background-image: ('url:images/Robson-Mountain.jpg');">
-
-    <br>
-    <h2>Add User</h2>
-    <hr>
-
-    <div class="container"">
-    <h3> <small>Hello, <%= result.firstname %> <%= result.lastname %></small> </h3> <br> 
-    <form id=" form-filter" method="POST">
-        <div class="container form-group row">
-            <label for="inputID" class="col-sm-2 col-form-label"> First Name </label>
-            <div class="col-sm-10">
-                <input type="text" class="form-control" name='firstname' placeholder="First Name" value= "<%= result.firstname %>">
-            </div>
-        </div>
-        <div class="container form-group row">
-            <label for="inputID" class="col-sm-2 col-form-label"> Last Name </label>
-            <div class="col-sm-10">
-                <input type="text" class="form-control" name='lastname' placeholder="Last Name" value= "<%= result.lastname %>">
-            </div>
-        </div>
-        <div class="container form-group row">
-            <label for="inputID" class="col-sm-2 col-form-label"> Email </label>
-            <div class="col-sm-10">
-                <input type="text" class="form-control" name='email' placeholder="Email" value= "<%= result.email %>" disabled>
-            </div>
-        </div>
-        <div class="container form-group row">
-            <label for="inputID" class="col-sm-2 col-form-label"> Password </label>
-            <div class="col-sm-10">
-                <input type="password" class="form-control" name='password' placeholder="Masukan Password Ulang" >
-            </div>
-        </div>
-
-        <div class="container form-group row">
-            <label for="inputBoolean" class="col-sm-2 col-form-label"> Position </label>
-            <div class="col-sm-10">
-                <select class="custom-select" name="position">
-                    <option value="">Choose Position</option>
-                    <option value="Quality Assurance" <%= result.position == 'Quality Assurance' ? 'selected' : '' %>>
-                        Quality Assurance</option>
-                    <option value="Manager" <%= result.position == 'Manager' ? 'selected' : '' %>>Manager</option>
-                    <option value="Software Developer" <%= result.position == 'Software Developer' ? 'selected' : '' %>>
-                        Software Developer</option>
-                </select>
-            </div>
-        </div>
-
-        <fieldset class="form-group">
-            <div class="container row">
-                <legend class="col-form-label col-sm-2 pt-0">Job Type</legend>
-                <div class="col-sm-10">
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="job" id="gridRadios1"
-                            value="Full Time" <%= result.isfulltime == 'Full Time' ? 'checked' : '' %>>
-                        <label class="form-check-label" for="gridRadios1">
-                            Full Time
-                        </label>
+    <div class="container">
+        <h1 class="display-4 mb-4"><%= title %></h1>
+        <hr>
+        <div class="shadow-sm card">
+            <div class="card-body">
+                <h3> <small>Hello, <%= result.firstname %> <%= result.lastname %></small> </h3> <br>
+                <form id=" form-filter" method="POST">
+                    <div class="container form-group row">
+                        <label for="inputID" class="col-sm-2 col-form-label"> First Name </label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name='firstname' placeholder="First Name"
+                                value="<%= result.firstname %>">
+                        </div>
                     </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="job" id="gridRadios2"
-                            value="Part Time" <%= result.isfulltime == 'Part Time' ? 'checked' : '' %>>
-                        <label class="form-check-label" for="gridRadios2">
-                            Part Time
-                        </label>
+                    <div class="container form-group row">
+                        <label for="inputID" class="col-sm-2 col-form-label"> Last Name </label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name='lastname' placeholder="Last Name"
+                                value="<%= result.lastname %>">
+                        </div>
                     </div>
-                </div>
-            </div>
-        </fieldset>
+                    <div class="container form-group row">
+                        <label for="inputID" class="col-sm-2 col-form-label"> Email </label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name='email' placeholder="Email"
+                                value="<%= result.email %>" disabled>
+                        </div>
+                    </div>
+                    <div class="container form-group row">
+                        <label for="inputID" class="col-sm-2 col-form-label"> Password </label>
+                        <div class="col-sm-10">
+                            <input type="password" class="form-control" name='password'
+                                placeholder="Masukan Password Ulang">
+                        </div>
+                    </div>
 
-        <div class="container form-group row">
-            <div class="col-sm-10">
-                <button class="btn btn-dark my-2 my-sm-0" type="submit">Update</button>
-                <a href="/projects" class="btn btn-dark my-2 my-sm-0" type="button">Cancel</a>
+                    <div class="container form-group row">
+                        <label for="inputBoolean" class="col-sm-2 col-form-label"> Position </label>
+                        <div class="col-sm-10">
+                            <select class="custom-select" name="position">
+                                <option value="">Choose Position</option>
+                                <option value="Quality Assurance"
+                                    <%= result.position == 'Quality Assurance' ? 'selected' : '' %>>
+                                    Quality Assurance</option>
+                                <option value="Manager" <%= result.position == 'Manager' ? 'selected' : '' %>>Manager
+                                </option>
+                                <option value="Software Developer"
+                                    <%= result.position == 'Software Developer' ? 'selected' : '' %>>
+                                    Software Developer</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <fieldset class="form-group">
+                        <div class="container row">
+                            <legend class="col-form-label col-sm-2 pt-0">Job Type</legend>
+                            <div class="col-sm-10">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="job" id="gridRadios1"
+                                        value="Full Time" <%= result.isfulltime == 'Full Time' ? 'checked' : '' %>>
+                                    <label class="form-check-label" for="gridRadios1">
+                                        Full Time
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="job" id="gridRadios2"
+                                        value="Part Time" <%= result.isfulltime == 'Part Time' ? 'checked' : '' %>>
+                                    <label class="form-check-label" for="gridRadios2">
+                                        Part Time
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <div class="container form-group row">
+                        <div class="col-sm-10">
+                            <button class="btn btn-dark my-2 my-sm-0" type="submit">Update</button>
+                            <a href="/projects" class="btn btn-dark my-2 my-sm-0" type="button">Cancel</a>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
-        </form>
     </div>
+</div>
 </div>
 
 <%- include("../partials/footer") %>
