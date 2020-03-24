@@ -2,25 +2,25 @@
 <div class="container-fluid" style="background-image: ('url:images/Robson-Mountain.jpg');">
 
     <br>
-    <h2>Projects</h2>
+    <h2><%=title%></h2>
     <hr>
     <div class="container">
         <h3>Filters</h3>
         <hr>
         <form id="form-filter" method="GET">
-            <input type="hidden" name="page" value="1">
+            
             <div class="container form-group row">
                 <label for="inputID" class="col-sm-2 col-form-label">
                     <input type="checkbox" id="inputID" name="cid"> ID</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" name='id' placeholder="ID">
+                    <input type="text" class="form-control" name='idproject' placeholder="ID">
                 </div>
             </div>
             <div class="container form-group row">
                 <label for="inputName" class="col-sm-2 col-form-label">
                     <input type="checkbox" id="inputName" name="cnama"> Name </label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" name='nama' placeholder="Name">
+                    <input type="text" class="form-control" name='namaproject' placeholder="Name">
                 </div>
             </div>
             <div class="container form-group row">
@@ -29,14 +29,17 @@
                 <div class="col-sm-10">
                     <select class="custom-select" name="member">
                         <option value="">Choose Member</option>
-                        <option value=""></option>
+                        <% user.forEach((item, index) => { %>
+                        <option value="<%= item.userid %>"><%= item.fullname %>
+                        </option>
+                        <% }) %>
                     </select>
                 </div>
             </div>
             <div class="container form-group row">
                 <div class="col-sm-10">
                     <button class="btn btn-dark my-2 my-sm-0" type="submit">Search</button>
-                    <a href="" class="btn btn-dark my-2 my-sm-0" type="submit">Show All</a>
+                    <a href="/projects" class="btn btn-dark my-2 my-sm-0" type="submit">Show All</a>
                 </div>
             </div>
         </form>
@@ -89,23 +92,23 @@
             <thead class="" style="background-color: #787878;">
                 <tr>
                     <th scope="col" style="text-align: left;">Project ID</th>
-                    <th scope="col" style="text-align: center;">Project Name</th>
-                    <th scope="col" style="text-align: center;">Project Members</th>
-                    <th scope="col" style="text-align: center;">Action</th>
+                    <th scope="col" style="text-align: left;">Project Name</th>
+                    <th scope="col" style="text-align: left;">Project Members</th>
+                    <th scope="col" style="text-align: left;">Action</th>
                 </tr>
             </thead>
             <tbody>
                 <% result.forEach(item => { %>
                 <tr>
                     <th scope="row" style="text-align: left;">
-                        <a class="btn btn-outline-secondary" href="/projects/overview"
-                            role="button">
+                        <a class="btn btn-outline-secondary" href="/projects/overview" role="button">
                             <%= item.projectid %> </a>
                     </th>
-                    <td style="text-align: center;"><%= item.name %></td>
-                    <td style="text-align: center;"><%= item.nama %></td>
-                    <td style="text-align: center;">
-                        <a class="btn btn-dark my-2 my-sm-0" href="/projects/edit/<%= item.projectid %>" role="button">Edit</a>
+                    <td style="text-align: left;"><%= item.name %></td>
+                    <td style="text-align: left;"><%= item.nama %></td>
+                    <td style="text-align: left;">
+                        <a class="btn btn-dark my-2 my-sm-0" href="/projects/edit/<%= item.projectid %>"
+                            role="button">Edit</a>
                         <a class="btn btn-dark my-2 my-sm-0 delete"
                             onclick="return confirm('Are you sure you want to delete this item?');"
                             href="/projects/delete/<%= item.projectid %>">Delete</a>
