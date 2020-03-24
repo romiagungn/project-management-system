@@ -5,11 +5,12 @@ const helpers = require('../helpers/util')
 module.exports = (db) => {
     // get page project
     router.get('/', helpers.isLoggedIn, (req, res) => {
-        let sql = `SELECT projects.projectid , projects.name , members.role, CONCAT(firstname,' ',lastname) AS nama FROM projects 
-        JOIN members ON members.projectid = projects.projectid
-        JOIN users ON members.userid = users.userid`;
+        let sql = `SELECT projects.projectid, projects.name, string_agg(users.firstname || ' ' || users.lastname, ', ') AS nama FROM projects
+        LEFT JOIN members ON projects.projectid = members.projectid
+        LEFT JOIN users ON members.userid = users.userid
+        GROUP BY projects.projectid ORDER BY projectid ASC `;
         db.query(sql, (err, dataProject) => {
-            if(err) res.status(500).json(err)
+            if (err) res.status(500).json(err)
             let result = dataProject.rows;
             res.render('projects/listProject', {
                 user: req.session.user,
@@ -67,6 +68,74 @@ module.exports = (db) => {
             req.flash('projectMessage', 'Please Add Members');
             res.redirect('/project/add')
         }
+    })
+
+    router.get('/edit/:projectid', helpers.isLoggedIn, (req, res) => {
+        let projectid = req.params.projectid;
+        let sql = `SELECT members.userid, projects.name, projects.projectid FROM projects LEFT JOIN members ON members.projectid = projects.projectid  WHERE projects.projectid = ${projectid}`;
+        let sql2 = `SELECT members.userid, projects.name, projects.projectid FROM members LEFT JOIN projects ON members.projectid = projects.projectid  WHERE projects.projectid = ${projectid};`
+        let sql3 = `SELECT * FROM users`;
+
+        db.query(sql, (err, data) => {
+            if (err) res.status(500).json(err)
+            let dataProject = data.rows[0];
+            db.query(sql2, (err, data) => {
+                if (err) res.status(500).json(err)
+                db.query(sql3, (err, dataUsers) => {
+                    let dataUser = dataUsers.rows;
+                    if (err) res.status(500).json(err)
+                    res.render('projects/edit', {
+                        title: 'Dasboard Edit Project',
+                        url: 'project',
+                        user: req.session.user,
+                        project: dataProject,
+                        dataUser,
+                        dataMembers: data.rows.map(item => item.userid)
+                    })
+                })
+            })
+        })
+    })
+
+    router.post('/edit/:projectid', (req, res) => {
+        const { editname, editmember } = req.body;
+        console.log(req.body)
+        let projectid = req.params.projectid;
+        let sql = `UPDATE projects SET name= '${editname}' WHERE projectid = ${projectid}`
+        db.query(sql, (err) => {
+            if (err) res.status(500).json(err)
+            let sqlDeleteMember = `DELETE FROM members WHERE projectid = ${projectid}`;
+
+            db.query(sqlDeleteMember, (err) => {
+                if (err) res.status(500).json(err)
+                let result = [];
+                console.log(result);
+                if (typeof editmember == "string") {
+                    result.push(`(${editmember}, ${projectid})`);
+                } else {
+                    for (let i = 0; i < editmember.length; i++) {
+                        result.push(`(${editmember[i]}, ${projectid})`);
+                    }
+                }
+                let sqlUpdate = `INSERT INTO members (userid, role, projectid) VALUES ${result.join(",")}`;
+                console.log(sqlUpdate)
+                db.query(sqlUpdate, (err) => {
+                    if (err) res.status(500).json(err)
+                    res.redirect('/projects')
+                })
+            })
+        })
+    })
+
+    // to delete project 
+    router.get('/delete/:projectid', helpers.isLoggedIn, (req, res, next) => {
+        const projectid = req.params.projectid;
+        let sqlDeleteProject = `DELETE FROM members WHERE projectid=${projectid};
+                                DELETE FROM projects WHERE projectid=${projectid}`;
+        db.query(sqlDeleteProject, (err) => {
+            if (err) res.status(500).json(err)
+            res.redirect('/projects');
+        })
     })
 
 
