@@ -5,21 +5,56 @@ const helpers = require('../helpers/util')
 module.exports = (db) => {
     // get page project
     router.get('/', helpers.isLoggedIn, (req, res) => {
-        let sql = `SELECT projects.projectid, projects.name, string_agg(users.firstname || ' ' || users.lastname, ', ') AS nama FROM projects
-        LEFT JOIN members ON projects.projectid = members.projectid
-        LEFT JOIN users ON members.userid = users.userid
-        GROUP BY projects.projectid ORDER BY projectid ASC `;
-        db.query(sql, (err, dataProject) => {
+        let getData = `SELECT count(id) AS total from (SELECT DISTINCT projects.projectid as id FROM projects LEfT JOIN members ON members.projectid = projects.projectid LEFT JOIN users ON users.userid = members.userid `
+        //filter logic
+        let result = [];
+        const { cid, cnama, cmember, idproject, namaproject, member } = req.query;
+
+        if (cid && idproject) {
+            result.push(`projects.projectid=${idproject}`)
+        }
+        if (cnama && namaproject) {
+            result.push(`projects.name LIKE '%${namaproject}%'`)
+        }
+        if (cmember && member) {
+            result.push(`members.userid=${member}`)
+        }
+
+        if (result.length > 0) {
+            getData += ` WHERE ${result.join(" AND ")}`;
+        }
+        getData += `) AS projectname`;
+        console.log(result)
+        console.log(getData)
+
+        db.query(getData, (err, totalData) => {
             if (err) res.status(500).json(err)
-            let result = dataProject.rows;
-            res.render('projects/listProject', {
-                user: req.session.user,
-                title: 'Dasrboard List Projects',
-                url: 'project',
-                result
+            let getData = `SELECT DISTINCT projects.projectid, projects.name, string_agg(users.firstname || ' ' || users.lastname, ', ') as nama FROM projects LEFT JOIN members ON members.projectid = projects.projectid
+            LEFT JOIN users ON users.userid = members.userid `;
+
+            if (result.length > 0) {
+                getData += ` WHERE ${result.join(" AND ")}`
+            }
+            getData += ` GROUP BY projects.projectid ORDER BY projectid ASC`;
+
+            db.query(getData, (err, dataProject) => {
+                if (err) res.status(500).json(err)
+                let getUser = `SELECT userid, concat(firstname,' ',lastname) as fullname FROM users;`
+
+                db.query(getUser, (err, dataUsers) => {
+                    if (err) res.status(500).json(err)
+                    res.render('projects/listProject', {
+                        user: req.session.user,
+                        title: 'Dasrboard Projects',
+                        url: 'project',
+                        result: dataProject.rows,
+                        user: dataUsers.rows
+                    })
+                })
             })
-        });
-    });
+        })
+    })
+
 
     //get users name in project/add
     router.get('/add', helpers.isLoggedIn, (req, res) => {
