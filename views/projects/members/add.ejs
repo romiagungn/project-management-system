@@ -17,9 +17,12 @@
                         <label for="inputBoolean" class="col-sm-2 col-form-label">
                             Members</label>
                         <div class="col-sm-10">
-                            <select class="custom-select" name="inputMember" required>
+                            <select class="custom-select" name="inputmember">
                                 <option value="">Choose Member</option>
-                                <option value=""> </option>
+                                <% users.forEach((item, index) => { %>
+                                <option value="<%= item.userid %>"><%= item.fullname %>
+                                </option>
+                                <% }) %>
                             </select>
                         </div>
                     </div>
@@ -29,21 +32,21 @@
                             <legend class="col-form-label col-sm-2 pt-0">Position</legend>
                             <div class="col-sm-10">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="inputPosition" id="gridRadios1"
+                                    <input class="form-check-input" type="radio" name="inputposition" id="gridRadios1"
                                         value="Manager">
                                     <label class="form-check-label" for="gridRadios1">
                                         Manager
                                     </label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="inputPosition" id="gridRadios2"
+                                    <input class="form-check-input" type="radio" name="inputposition" id="gridRadios2"
                                         value="Software Developer">
                                     <label class="form-check-label" for="gridRadios2">
                                         Software Developer
                                     </label>
                                 </div>
                                 <div class="form-check disabled">
-                                    <input class="form-check-input" type="radio" name="inputPosition" id="gridRadios3"
+                                    <input class="form-check-input" type="radio" name="inputposition" id="gridRadios3"
                                         value="Quality Assurance">
                                     <label class="form-check-label" for="gridRadios3">
                                         Quality Assurance
