@@ -24,18 +24,26 @@ module.exports = (db) => {
             getData += ` WHERE ${result.join(" AND ")}`;
         }
         getData += `) AS projectname`;
-        console.log(result)
-        console.log(getData)
+        // end filter logic
 
         db.query(getData, (err, totalData) => {
             if (err) res.status(500).json(err)
+
+            // start pagenation logic 
+            const link = req.url == '/' ? '/?page=1' : req.url;
+            const page = req.query.page || 1;
+            const limit = 2;
+            const offset = (page - 1) * limit;
+            const total = totalData.rows[0].total
+            const pages = Math.ceil(total / limit);
             let getData = `SELECT DISTINCT projects.projectid, projects.name, string_agg(users.firstname || ' ' || users.lastname, ', ') as nama FROM projects LEFT JOIN members ON members.projectid = projects.projectid
             LEFT JOIN users ON users.userid = members.userid `;
 
             if (result.length > 0) {
                 getData += ` WHERE ${result.join(" AND ")}`
             }
-            getData += ` GROUP BY projects.projectid ORDER BY projectid ASC`;
+            getData += ` GROUP BY projects.projectid ORDER BY projectid ASC LIMIT ${limit} OFFSET ${offset}`;
+            // end pagenation logic
 
             db.query(getData, (err, dataProject) => {
                 if (err) res.status(500).json(err)
@@ -47,6 +55,9 @@ module.exports = (db) => {
                         user: req.session.user,
                         title: 'Dasrboard Projects',
                         url: 'project',
+                        page,
+                        pages,
+                        link,
                         result: dataProject.rows,
                         user: dataUsers.rows
                     })
@@ -105,6 +116,7 @@ module.exports = (db) => {
         }
     })
 
+    // get data @edit project
     router.get('/edit/:projectid', helpers.isLoggedIn, (req, res) => {
         let projectid = req.params.projectid;
         let sql = `SELECT members.userid, projects.name, projects.projectid FROM projects LEFT JOIN members ON members.projectid = projects.projectid  WHERE projects.projectid = ${projectid}`;
@@ -132,6 +144,7 @@ module.exports = (db) => {
         })
     })
 
+    // save data edit project
     router.post('/edit/:projectid', (req, res) => {
         const { editname, editmember } = req.body;
         console.log(req.body)
@@ -176,49 +189,76 @@ module.exports = (db) => {
 
 
     //get page project/ overview
-    router.get('/overview', helpers.isLoggedIn, (req, res) => {
-        res.render('projects/overview', {
-            user: req.session.user,
-            title: 'Darsboard Overview',
-            url: 'project',
-            url2: 'overview'
+    router.get('/overview/:projectid', helpers.isLoggedIn, (req, res) => {
+        const { projectid } = req.params;
+        let getProject = `SELECT * FROM projects WHERE projectid=${projectid}`;
+
+        db.query(getProject, (err, getData) => {
+            if (err) res.status(500).json(err)
+                res.render('projects/overview', {
+                    user: req.session.user,
+                    title: 'Darsboard Overview',
+                    url: 'project',
+                    url2: 'overview',
+                    result: getData.rows[0]
+            })
         })
     })
 
     //get page project/ actoivity
-    router.get('/activity', helpers.isLoggedIn, (req, res) => {
-        res.render('projects/activity', {
-            user: req.session.user,
-            title: 'Darsboard Activity',
-            url: 'project',
-            url2: 'activity'
+    router.get('/activity/:projectid', helpers.isLoggedIn, (req, res) => {
+        const { projectid } = req.params;
+        let getProject = `SELECT * FROM projects WHERE projectid=${projectid}`;
+        db.query(getProject, (err, getData) => {
+            if (err) res.status(500).json(err)
+            res.render('projects/activity', {
+                user: req.session.user,
+                title: 'Darsboard Activity',
+                url: 'project',
+                url2: 'activity',
+                result: getData.rows[0]
+            })
         })
     })
 
-    //get page project/ members
-    router.get('/members', helpers.isLoggedIn, (req, res) => {
-        res.render('projects/members/listMembers', {
-            user: req.session.user,
-            title: 'Dasboard Members',
-            url: 'project',
-            url2: 'members'
+    // *** member page *** //
+    
+      // to landing member page
+    router.get('/members/:projectid', helpers.isLoggedIn, (req, res) => {
+        const { projectid } = req.params;
+        let getProject = `SELECT * FROM projects WHERE projectid=${projectid}`;
+        db.query(getProject, (err, getData) => {
+            if (err) res.status(500).json(err)
+            res.render('projects/members/listMembers', {
+                user: req.session.user,
+                title: 'Dasboard Members',
+                url: 'project',
+                url2: 'members',
+                result: getData.rows[0]
+            })
         })
     })
 
-    //get page project/ members / add
-    router.get('/members/add', helpers.isLoggedIn, (req, res) => {
+  // post option at member page
+    router.get('/members/:projectid/add', helpers.isLoggedIn, (req, res) => {
         res.render('projects/members/add', {
             title: 'Dasboard Members Add'
         })
     })
 
     //get page project/ Issuess
-    router.get('/issues', helpers.isLoggedIn, (req, res) => {
-        res.render('projects/issues/listIssues', {
-            user: req.session.user,
-            title: 'Darsboard Issues',
-            url: 'project',
-            url2: 'issues'
+    router.get('/issues/:projectid', helpers.isLoggedIn, (req, res) => {
+        const { projectid } = req.params;
+        let getProject = `SELECT * FROM projects WHERE projectid=${projectid}`;
+        db.query(getProject, (err, getData) => {
+            if (err) res.status(500).json(err)
+            res.render('projects/issues/listIssues', {
+                user: req.session.user,
+                title: 'Darsboard Issues',
+                url: 'project',
+                url2: 'issues',
+                result: getData.rows[0]
+            })
         })
     })
 
