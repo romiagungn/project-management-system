@@ -220,7 +220,7 @@
 
                         <div class="form-group-row">
                             <button class="btn btn-dark my-2 my-sm-0" type="submit">Apply</button>
-                            <a href="/projects/issues/add" class="btn btn-dark my-2 my-sm-0" type="submit">Add Issues</a>
+                            <a href="/projects/issues/<%= result.projectid %>/add" class="btn btn-dark my-2 my-sm-0" type="submit">Add Issues</a>
                         </div>
 
                 </form>
@@ -249,8 +249,6 @@
                             <th scope="col">Closed Date</th>
                             <th scope="col">Parent Task</th>
                             <th scope="col">Action</th>
-
-                            
                         </tr>
                     </thead>
                     <tbody>
