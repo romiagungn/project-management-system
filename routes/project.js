@@ -89,13 +89,11 @@ module.exports = (db) => {
         const { name, member } = req.body;
         if (name && member) {
             const insertId = `INSERT INTO projects (name) VALUES ('${name}')`;
-            console.log(insertId)
             db.query(insertId, (err, dataProject) => {
 
                 let selectidMax = `SELECT MAX (projectid) FROM projects`;
                 db.query(selectidMax, (err, dataMax) => {
                     let insertidMax = dataMax.rows[0].max;
-                    console.log(insertidMax);
                     let insertMember = 'INSERT INTO members (userid, role, projectid) VALUES '
                     if (typeof member == 'string') {
                         insertMember += `(${member}, ${insertidMax});`
@@ -147,7 +145,6 @@ module.exports = (db) => {
     // save data edit project
     router.post('/edit/:projectid', helpers.isLoggedIn, (req, res) => {
         const { editname, editmember } = req.body;
-        console.log(req.body)
         let projectid = req.params.projectid;
         let sql = `UPDATE projects SET name= '${editname}' WHERE projectid = ${projectid}`
         db.query(sql, (err) => {
@@ -157,7 +154,6 @@ module.exports = (db) => {
             db.query(sqlDeleteMember, (err) => {
                 if (err) res.status(500).json(err)
                 let result = [];
-                console.log(result);
                 if (typeof editmember == "string") {
                     result.push(`(${editmember}, ${projectid})`);
                 } else {
@@ -166,7 +162,6 @@ module.exports = (db) => {
                     }
                 }
                 let sqlUpdate = `INSERT INTO members (userid, role, projectid) VALUES ${result.join(",")}`;
-                console.log(sqlUpdate)
                 db.query(sqlUpdate, (err) => {
                     if (err) res.status(500).json(err)
                     res.redirect('/projects')
@@ -228,27 +223,43 @@ module.exports = (db) => {
         const { projectid, memberid } = req.params;
         const { cid, cnama, cposition, id, nama, position } = req.query;
         let sql = `SELECT COUNT(member) as total  FROM (SELECT members.userid FROM members JOIN users ON members.userid = users.userid WHERE members.projectid = ${projectid} `;
+        // start filter logic
         result = [];
 
-        if(cid && id) {
+        if (cid && id) {
             result.push(`members.id=${id}`)
         }
-
-        if(result.length > 0) {
+        if (cnama && nama) {
+            result.push(`CONCAT(users.firstname,' ',users.lastname) LIKE '%${nama}%'`)
+        }
+        if (cposition && position) {
+            result.push(`members.role = '${position}'`)
+        }
+        if (result.length > 0) {
             sql += ` AND ${result.join(' AND ')}`
         }
-        sql += ` ) AS total`
-        console.log(sql)
-        console.log(result)
-        db.query(sql, (err, total) => {
+        sql += `) AS member`;
+        // end filter logic
+        db.query(sql, (err, totalData) => {
+            if (err) res.status(500).json(err)
+
+            // start pagenation members logic
+            const link = (req.url == `/members/${projectid}`) ? `/members/${projectid}/?page=1` : req.url;
+            const page = req.query.page || 1;
+            const limit = 2;
+            const offset = (page - 1) * limit;
+            const total = totalData.rows[0].total
+            const pages = Math.ceil(total / limit);
             let sqlMember = `SELECT users.userid, projects.name , projects.projectid, members.id, members.role, CONCAT(users.firstname,' ',users.lastname) AS nama FROM members 
             LEFT JOIN projects ON projects.projectid = members.projectid 
             LEFT JOIN users ON users.userid = members.userid WHERE members.projectid = ${projectid}`
 
-            if(result.length > 0) {
+            if (result.length > 0) {
                 sqlMember += ` AND ${result.join(' AND ')}`
             }
-            console.log(sqlMember)
+            sqlMember += ` ORDER BY members.id ASC`
+            sqlMember += ` LIMIT ${limit} OFFSET ${offset}`;
+            // end pagenation members logic
 
             db.query(sqlMember, (err, dataMember) => {
                 if (err) res.status(500).json(err)
@@ -260,6 +271,9 @@ module.exports = (db) => {
                         title: 'Dasboard Members',
                         url: 'projects',
                         url2: 'members',
+                        pages,
+                        page,
+                        link,
                         result: dataProject.rows[0],
                         result2: dataMember.rows,
                         memberMessage: req.flash('memberMessage')
@@ -330,7 +344,6 @@ module.exports = (db) => {
         const { projectid, memberid } = req.params
         const { inputposition } = req.body
         let sql = `UPDATE members SET role='${inputposition}' WHERE id=${memberid}`;
-        console.log(sql)
         db.query(sql, (err) => {
             if (err) res.status(500).json(err)
             res.redirect(`/projects/members/${projectid}`)
@@ -339,8 +352,7 @@ module.exports = (db) => {
 
     router.get('/members/:projectid/delete/:memberid', helpers.isLoggedIn, (req, res) => {
         const { projectid, memberid } = req.params
-        let sql = `DELETE FROM members WHERE projectid=${projectid} AND id=${memberid}`
-        console.log(sql)
+        let sql = `DELETE FROM members WHERE projectid=${projectid} AND id=${memberid}`;
         db.query(sql, (err) => {
             if (err) res.status(500).json(err)
             res.redirect(`/projects/members/${projectid}`)
