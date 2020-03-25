@@ -225,23 +225,45 @@ module.exports = (db) => {
 
     // to landing member page
     router.get('/members/:projectid', helpers.isLoggedIn, (req, res) => {
-        const { projectid } = req.params;
-        let sqlProject = `SELECT * FROM projects WHERE projectid=${projectid}`;
-        let sqlMember = `SELECT users.userid, projects.name , projects.projectid, members.id, members.role, CONCAT(users.firstname,' ',users.lastname) AS nama FROM members 
-        LEFT JOIN projects ON projects.projectid = members.projectid 
-        LEFT JOIN users ON users.userid = members.userid WHERE members.projectid = ${projectid};`
-        db.query(sqlProject, (err, dataProject) => {
-            if (err) res.status(500).json(err)
+        const { projectid, memberid } = req.params;
+        const { cid, cnama, cposition, id, nama, position } = req.query;
+        let sql = `SELECT COUNT(member) as total  FROM (SELECT members.userid FROM members JOIN users ON members.userid = users.userid WHERE members.projectid = ${projectid} `;
+        result = [];
+
+        if(cid && id) {
+            result.push(`members.id=${id}`)
+        }
+
+        if(result.length > 0) {
+            sql += ` AND ${result.join(' AND ')}`
+        }
+        sql += ` ) AS total`
+        console.log(sql)
+        console.log(result)
+        db.query(sql, (err, total) => {
+            let sqlMember = `SELECT users.userid, projects.name , projects.projectid, members.id, members.role, CONCAT(users.firstname,' ',users.lastname) AS nama FROM members 
+            LEFT JOIN projects ON projects.projectid = members.projectid 
+            LEFT JOIN users ON users.userid = members.userid WHERE members.projectid = ${projectid}`
+
+            if(result.length > 0) {
+                sqlMember += ` AND ${result.join(' AND ')}`
+            }
+            console.log(sqlMember)
+
             db.query(sqlMember, (err, dataMember) => {
                 if (err) res.status(500).json(err)
-                res.render('projects/members/listMembers', {
-                    user: req.session.user,
-                    title: 'Dasboard Members',
-                    url: 'projects',
-                    url2: 'members',
-                    result: dataProject.rows[0],
-                    result2: dataMember.rows,
-                    memberMessage: req.flash('memberMessage')
+                let sqlProject = `SELECT * FROM projects WHERE projectid = ${projectid}`;
+                db.query(sqlProject, (err, dataProject) => {
+                    if (err) res.status(500).json(err)
+                    res.render('projects/members/listMembers', {
+                        user: req.session.user,
+                        title: 'Dasboard Members',
+                        url: 'projects',
+                        url2: 'members',
+                        result: dataProject.rows[0],
+                        result2: dataMember.rows,
+                        memberMessage: req.flash('memberMessage')
+                    })
                 })
             })
         })
@@ -316,11 +338,11 @@ module.exports = (db) => {
     })
 
     router.get('/members/:projectid/delete/:memberid', helpers.isLoggedIn, (req, res) => {
-        const {projectid , memberid} = req.params
+        const { projectid, memberid } = req.params
         let sql = `DELETE FROM members WHERE projectid=${projectid} AND id=${memberid}`
         console.log(sql)
         db.query(sql, (err) => {
-            if(err) res.status(500).json(err)
+            if (err) res.status(500).json(err)
             res.redirect(`/projects/members/${projectid}`)
         })
     })
@@ -346,9 +368,19 @@ module.exports = (db) => {
     })
 
     //get page project/ Issuess / add
-    router.get('/issues/add', helpers.isLoggedIn, (req, res) => {
-        res.render('projects/issues/add', {
-            title: 'Darsboard Issues Add'
+    router.get('/issues/:projectid/add', helpers.isLoggedIn, (req, res) => {
+        const { projectid } = req.params;
+        let getProject = `SELECT * FROM projects WHERE projectid=${projectid}`;
+        db.query(getProject, (err, getData) => {
+            if (err) res.status(500).json(err)
+            res.render('projects/issues/add', {
+                user: req.session.user,
+                title: 'Darsboard Issues Add',
+                title2: 'Add Issues',
+                url: 'project',
+                url2: 'issues',
+                result: getData.rows[0]
+            })
         })
     })
 
