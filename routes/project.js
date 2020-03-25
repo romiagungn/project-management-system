@@ -54,7 +54,7 @@ module.exports = (db) => {
                     res.render('projects/listProject', {
                         user: req.session.user,
                         title: 'Dasrboard Projects',
-                        url: 'project',
+                        url: 'projects',
                         page,
                         pages,
                         link,
@@ -77,7 +77,7 @@ module.exports = (db) => {
             res.render('projects/add', {
                 user: req.session.user,
                 title: 'DASBOARD PMS',
-                url: 'project',
+                url: 'projects',
                 result,
                 projectMessage: req.flash('projectMessage')
             })
@@ -112,7 +112,7 @@ module.exports = (db) => {
             })
         } else {
             req.flash('projectMessage', 'Please Add Members');
-            res.redirect('/project/add')
+            res.redirect('/projects/add')
         }
     })
 
@@ -133,7 +133,7 @@ module.exports = (db) => {
                     if (err) res.status(500).json(err)
                     res.render('projects/edit', {
                         title: 'Dasboard Edit Project',
-                        url: 'project',
+                        url: 'projects',
                         user: req.session.user,
                         project: dataProject,
                         dataUser,
@@ -145,7 +145,7 @@ module.exports = (db) => {
     })
 
     // save data edit project
-    router.post('/edit/:projectid', (req, res) => {
+    router.post('/edit/:projectid', helpers.isLoggedIn, (req, res) => {
         const { editname, editmember } = req.body;
         console.log(req.body)
         let projectid = req.params.projectid;
@@ -198,7 +198,7 @@ module.exports = (db) => {
             res.render('projects/overview', {
                 user: req.session.user,
                 title: 'Darsboard Overview',
-                url: 'project',
+                url: 'projects',
                 url2: 'overview',
                 result: getData.rows[0]
             })
@@ -214,7 +214,7 @@ module.exports = (db) => {
             res.render('projects/activity', {
                 user: req.session.user,
                 title: 'Darsboard Activity',
-                url: 'project',
+                url: 'projects',
                 url2: 'activity',
                 result: getData.rows[0]
             })
@@ -227,37 +227,42 @@ module.exports = (db) => {
     router.get('/members/:projectid', helpers.isLoggedIn, (req, res) => {
         const { projectid } = req.params;
         let sqlProject = `SELECT * FROM projects WHERE projectid=${projectid}`;
-        let sqlMember = `SELECT users.userid , projects.projectid, members.id, members.role, CONCAT(users.firstname,' ',users.lastname) AS name FROM members 
+        let sqlMember = `SELECT users.userid, projects.name , projects.projectid, members.id, members.role, CONCAT(users.firstname,' ',users.lastname) AS nama FROM members 
         LEFT JOIN projects ON projects.projectid = members.projectid 
         LEFT JOIN users ON users.userid = members.userid WHERE members.projectid = ${projectid};`
-        db.query(sqlProject, (err, getData) => {
+        db.query(sqlProject, (err, dataProject) => {
             if (err) res.status(500).json(err)
             db.query(sqlMember, (err, dataMember) => {
                 if (err) res.status(500).json(err)
                 res.render('projects/members/listMembers', {
                     user: req.session.user,
                     title: 'Dasboard Members',
-                    url: 'project',
+                    url: 'projects',
                     url2: 'members',
-                    result: getData.rows[0],
-                    result2: dataMember.rows
+                    result: dataProject.rows[0],
+                    result2: dataMember.rows,
+                    memberMessage: req.flash('memberMessage')
                 })
             })
         })
     })
 
-    // post option at member page
+    // landing to add member page at member page
     router.get('/members/:projectid/add', helpers.isLoggedIn, (req, res) => {
         const { projectid } = req.params;
-        let getProject = `SELECT * FROM projects WHERE projectid=${projectid}`;
-        let getUser = `SELECT userid, concat(firstname,' ',lastname) as fullname FROM users;`
-        db.query(getProject, (err, getData) => {
+        let sqlProject = `SELECT * FROM projects WHERE projectid=${projectid}`;
+        let sqlMember = `SELECT userid, email, CONCAT(firstname,' ',lastname) AS nama FROM users WHERE userid NOT IN (SELECT userid FROM members WHERE projectid=${projectid})`
+        db.query(sqlProject, (err, dataProject) => {
             if (err) res.status(500).json(err)
-            db.query(getUser, (err, dataUser) => {
+            db.query(sqlMember, (err, dataMember) => {
+                if (err) res.status(500).json(err)
                 res.render('projects/members/add', {
                     title: 'Dasboard Members Add',
-                    result: getData.rows[0],
-                    users: dataUser.rows
+                    url: 'projects',
+                    url2: 'member',
+                    result: dataProject.rows[0],
+                    result2: dataMember.rows,
+                    memberMessage: req.flash('memberMessage')
                 })
             })
         })
@@ -266,14 +271,63 @@ module.exports = (db) => {
     // to post add member at member page
     router.post('/members/:projectid/add', helpers.isLoggedIn, (req, res, next) => {
         const { projectid } = req.params
-        const { inputmember , inputposition } = req.body
-
+        const { inputmember, inputposition } = req.body
         let sql = `INSERT INTO members(userid, role, projectid) VALUES(${inputmember}, '${inputposition}', ${projectid})`
         db.query(sql, (err) => {
             if (err) res.status(500).json(err);
             res.redirect(`/projects/members/${projectid}`)
         })
     })
+
+    // landing to edit page at member page
+    router.get('/members/:projectid/edit/:memberid', helpers.isLoggedIn, (req, res) => {
+        const { projectid, memberid } = req.params
+        let sqlProject = `SELECT * FROM projects WHERE projectid = ${projectid}`
+        db.query(sqlProject, (err, dataProject) => {
+            if (err) res.status(500).json(err)
+            let sqlMember = `SELECT projects.projectid, users.userid , users.firstname, users.lastname, members.role, members.id FROM members
+            LEFT JOIN projects ON members.projectid = projects.projectid 
+            LEFT JOIN users ON members.userid = users.userid 
+            WHERE projects.projectid=${projectid} AND id=${memberid}`;
+            db.query(sqlMember, (err, dataMember) => {
+                if (err) res.status(500).json(err)
+                res.render('projects/members/edit', {
+                    user: req.session.user,
+                    title: 'Dasrboard Edit Members',
+                    url: 'projects',
+                    url2: 'members',
+                    result: dataProject.rows[0],
+                    result2: dataMember.rows[0]
+                })
+            })
+        })
+    })
+
+    // to post edit member page
+    router.post('/members/:projectid/edit/:memberid', helpers.isLoggedIn, (req, res) => {
+        const { projectid, memberid } = req.params
+        const { inputposition } = req.body
+        let sql = `UPDATE members SET role='${inputposition}' WHERE id=${memberid}`;
+        console.log(sql)
+        db.query(sql, (err) => {
+            if (err) res.status(500).json(err)
+            res.redirect(`/projects/members/${projectid}`)
+        })
+    })
+
+    router.get('/members/:projectid/delete/:memberid', helpers.isLoggedIn, (req, res) => {
+        const {projectid , memberid} = req.params
+        let sql = `DELETE FROM members WHERE projectid=${projectid} AND id=${memberid}`
+        console.log(sql)
+        db.query(sql, (err) => {
+            if(err) res.status(500).json(err)
+            res.redirect(`/projects/members/${projectid}`)
+        })
+    })
+
+
+
+
 
     //get page project/ Issuess
     router.get('/issues/:projectid', helpers.isLoggedIn, (req, res) => {
