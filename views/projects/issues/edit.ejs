@@ -73,44 +73,44 @@
                             <legend class="col-form-label col-sm-2 pt-0">Status</legend>
                             <div class="col-sm-10">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="status" id="new"
+                                    <input class="form-check-input" type="radio" name="new" id="gridRadios1"
                                         value="new">
-                                    <label class="form-check-label" for="new">
+                                    <label class="form-check-label" for="gridRadios1">
                                         New
                                     </label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="status" id="inprogress"
+                                    <input class="form-check-input" type="radio" name="inprogres" id="gridRadios2"
                                         value="in progress" disabled>
-                                    <label class="form-check-label" for="inprogress">
+                                    <label class="form-check-label" for="gridRadios2">
                                         In Progress
                                     </label>
                                 </div>
                                 <div class="form-check disabled">
-                                    <input class="form-check-input" type="radio" name="status" id="feedback"
+                                    <input class="form-check-input" type="radio" name="feedback" id="gridRadios3"
                                         value="feedback" disabled>
                                     <label class="form-check-label" for="gridRadios3">
                                         Feedback
                                     </label>
                                 </div>
                                 <div class="form-check disabled">
-                                    <input class="form-check-input" type="radio" name="status" id="resolved"
+                                    <input class="form-check-input" type="radio" name="resolved" id="gridRadios4"
                                         value="resolved" disabled>
-                                    <label class="form-check-label" for="resolved">
+                                    <label class="form-check-label" for="gridRadios4">
                                         Resolved
                                     </label>
                                 </div>
                                 <div class="form-check disabled">
-                                    <input class="form-check-input" type="radio" name="status" id="closed"
+                                    <input class="form-check-input" type="radio" name="closed" id="gridRadios5"
                                         value="closed" disabled>
-                                    <label class="form-check-label" for="closed">
+                                    <label class="form-check-label" for="gridRadios5">
                                         Closed
                                     </label>
                                 </div>
                                 <div class="form-check disabled">
-                                    <input class="form-check-input" type="radio" name="rejected" id="rejected"
+                                    <input class="form-check-input" type="radio" name="rejected" id="gridRadios6"
                                         value="rejected" disabled>
-                                    <label class="form-check-label" for="rejected">
+                                    <label class="form-check-label" for="gridRadios6">
                                         Rejected
                                     </label>
                                 </div>
@@ -120,33 +120,33 @@
 
                     <fieldset class="container form-group">
                         <div class="row">
-                            <legend class="col-form-label col-sm-2 pt-0">Priority</legend>
+                            <legend class="col-form-label col-sm-2 pt-0">Status</legend>
                             <div class="col-sm-10">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="priority" id="normal"
+                                    <input class="form-check-input" type="radio" name="normal" id="gridRadios1"
                                         value="normal">
-                                    <label class="form-check-label" for="normal">
+                                    <label class="form-check-label" for="gridRadios1">
                                         Normal
                                     </label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="priority" id="high"
+                                    <input class="form-check-input" type="radio" name="high" id="gridRadios2"
                                         value="high">
-                                    <label class="form-check-label" for="high">
+                                    <label class="form-check-label" for="gridRadios2">
                                         High
                                     </label>
                                 </div>
                                 <div class="form-check disabled">
-                                    <input class="form-check-input" type="radio" name="priority" id="urgent"
+                                    <input class="form-check-input" type="radio" name="urgent" id="gridRadios3"
                                         value="urgent">
-                                    <label class="form-check-label" for="urgent">
+                                    <label class="form-check-label" for="gridRadios3">
                                         Urgent
                                     </label>
                                 </div>
                                 <div class="form-check disabled">
-                                    <input class="form-check-input" type="radio" name="priority" id="immediate"
+                                    <input class="form-check-input" type="radio" name="immediate" id="gridRadios4"
                                         value="immediate">
-                                    <label class="form-check-label" for="immediate">
+                                    <label class="form-check-label" for="gridRadios4">
                                         Immediate
                                     </label>
                                 </div>
@@ -157,11 +157,8 @@
                     <div class="container form-group row">
                         <label for="assignee" class="col-sm-2 col-form-label"> Assignee</label>
                         <div class="col-sm-10">
-                            <select class="custom-select" id="assignee" name="assignee">
+                            <select class="custom-select" id name="tracker">
                                 <option value="">Choose Member</option>
-                                <% result2.forEach(item => {%>
-                                    <option value="<%= item.userid %>"> <%= item.nama %> </option>
-                                    <% }) %>
                             </select>
                         </div>
                     </div>
@@ -183,7 +180,7 @@
                     <div class="container form-group row">
                         <label for="Subject" class="col-sm-2 col-form-label">Estimated Time (Hours)</label>
                         <div class="col-sm-10">
-                            <input type="number" class="form-control" name='estimatetime' placeholder="Estimated Time (Hours)">
+                            <input type="number" class="form-control" name='time' placeholder="0">
                         </div>
                     </div>
 
@@ -210,14 +207,14 @@
                     <div class="container form-group row">
                         <label for="file" class="col-sm-2 col-form-label">No File Choosen</label>
                         <div class=" container col-sm-10">
-                            <input type="file" class="form-control-file" id="file" name="file">
+                            <input type="file" class="form-control-file" id="file">
                         </div>
                     </div>
 
                     <div class="container form-group row">
                         <div class="col-sm-10">
-                            <button type="submit" class="btn btn-dark my-2 my-sm-0">Add</button>
-                            <a class="btn btn-dark my-2 my-sm-0" href="/projects/issues/<%= result.projectid %>" role="button">Back</a>
+                            <button type="submit" class="btn btn-dark my-2 my-sm-0">Update</button>
+                            <a class="btn btn-dark my-2 my-sm-0" href="/projects/members/<%= result.projectid %>" role="button">Back</a>
                         </div>
                     </div>
 
