@@ -38,14 +38,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.static(path.join(__dirname, 'public/login')));
-
+app.use(express.static(path.join(__dirname, 'login')));
 // trust first proxy
 app.set('trust proxy', 1) 
 app.use(session({
   secret: 'semuanyatai'
 }));
 
+//default options
 app.use(flash());
 app.use(fileUpload());
 app.use(function (req, res, next) {
