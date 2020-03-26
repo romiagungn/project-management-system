@@ -44,7 +44,9 @@
                 <div class="card-body">
                     <h5>Member</h5>
                     <ul class="list-group">
-                        <li class="list-group-item"></li>
+                        <% result2.forEach((item , index) => { %>
+                        <li class="list-group-item" style="font-weight: bold;"> <%= index + 1 %>. <%= item.firstname %> <%= item.lastname %></li>
+                        <% }) %>
                     </ul>
                 </div>
             </div>
