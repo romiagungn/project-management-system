@@ -32,7 +32,7 @@ module.exports = (db) => {
             // start pagenation logic 
             const link = req.url == '/' ? '/?page=1' : req.url;
             const page = req.query.page || 1;
-            const limit = 2;
+            const limit = 3;
             const offset = (page - 1) * limit;
             const total = totalData.rows[0].total
             const pages = Math.ceil(total / limit);
@@ -135,7 +135,8 @@ module.exports = (db) => {
                         user: req.session.user,
                         project: dataProject,
                         dataUser,
-                        dataMembers: data.rows.map(item => item.userid)
+                        dataMembers: data.rows.map(item => item.userid),
+                        projectMessage: req.flash('projectMessage')
                     })
                 })
             })
@@ -187,15 +188,22 @@ module.exports = (db) => {
     router.get('/overview/:projectid', helpers.isLoggedIn, (req, res) => {
         const { projectid } = req.params;
         let getProject = `SELECT * FROM projects WHERE projectid=${projectid}`;
-
-        db.query(getProject, (err, getData) => {
+        let getUser = `SELECT users.firstname, users.lastname , members.role FROM members 
+        LEFT JOIN users ON members.userid = users.userid 
+        LEFT JOIN projects ON members.projectid = projects.projectid
+        WHERE members.projectid = ${projectid}`;
+        db.query(getUser, (err, dataUser) => {
             if (err) res.status(500).json(err)
-            res.render('projects/overview', {
-                user: req.session.user,
-                title: 'Darsboard Overview',
-                url: 'projects',
-                url2: 'overview',
-                result: getData.rows[0]
+            db.query(getProject, (err, getData) => {
+                if (err) res.status(500).json(err)
+                res.render('projects/overview', {
+                    user: req.session.user,
+                    title: 'Darsboard Overview',
+                    url: 'projects',
+                    url2: 'overview',
+                    result: getData.rows[0],
+                    result2: dataUser.rows
+                })
             })
         })
     })
@@ -246,7 +254,7 @@ module.exports = (db) => {
             // start pagenation members logic
             const link = (req.url == `/members/${projectid}`) ? `/members/${projectid}/?page=1` : req.url;
             const page = req.query.page || 1;
-            const limit = 2;
+            const limit = 3;
             const offset = (page - 1) * limit;
             const total = totalData.rows[0].total
             const pages = Math.ceil(total / limit);
@@ -350,6 +358,7 @@ module.exports = (db) => {
         })
     })
 
+    // to post delete member page
     router.get('/members/:projectid/delete/:memberid', helpers.isLoggedIn, (req, res) => {
         const { projectid, memberid } = req.params
         let sql = `DELETE FROM members WHERE projectid=${projectid} AND id=${memberid}`;
@@ -358,10 +367,6 @@ module.exports = (db) => {
             res.redirect(`/projects/members/${projectid}`)
         })
     })
-
-
-
-
 
     //get page project/ Issuess
     router.get('/issues/:projectid', helpers.isLoggedIn, (req, res) => {
@@ -383,18 +388,64 @@ module.exports = (db) => {
     router.get('/issues/:projectid/add', helpers.isLoggedIn, (req, res) => {
         const { projectid } = req.params;
         let getProject = `SELECT * FROM projects WHERE projectid=${projectid}`;
-        db.query(getProject, (err, getData) => {
+        let getUser = `SELECT users.userid, CONCAT(users.firstname,' ',users.lastname) as nama , projects.projectid FROM members 
+        LEFT JOIN users ON members.userid = users.userid
+        LEFT JOIN projects ON members.projectid = projects.projectid WHERE members.projectid = ${projectid}`;
+        db.query(getUser, (err, dataUser) => {
             if (err) res.status(500).json(err)
-            res.render('projects/issues/add', {
-                user: req.session.user,
-                title: 'Darsboard Issues Add',
-                title2: 'Add Issues',
-                url: 'project',
-                url2: 'issues',
-                result: getData.rows[0]
+            db.query(getProject, (err, getData) => {
+                if (err) res.status(500).json(err)
+                res.render('projects/issues/add', {
+                    user: req.session.user,
+                    title: 'Darsboard Issues Add',
+                    title2: 'New Issues',
+                    url: 'project',
+                    url2: 'issues',
+                    result: getData.rows[0],
+                    result2: dataUser.rows
+                })
             })
         })
     })
+
+    router.post('/issues/:id/add', (req, res, next) => {
+        const projectid = req.params.id;
+        const user = req.session.user;
+        const {
+            tracker,
+            subject,
+            description,
+            status,
+            priority,
+            assignee,
+            startdate,
+            duedate,
+            estimatetime,
+            done,
+            file
+        } = req.body;
+        const addIssues = `INSERT INTO issues (projectid,tracker,subject,description,status,priority,assignee,startdate,duedate,estimatedate,done,files,author,createdate) 
+                            VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,${user.userid},NOW())`
+        const issuesData = [projectid, tracker, subject, description, status, priority, assignee, startdate, duedate, estimatetime, done, file]
+        if (req.files) {
+            let file = req.files.images;
+            let fileName = file.name.toLowerCase().replace("", Date.now()).split(' ').join('-');
+            file.mv(path.join(__dirname, "..", 'public', "upload", fileName), function (err) {
+                if (err) throw err;
+                issuesData[11] = `/upload/${fileName}`;
+                db.query(addIssues, issuesData, (err) => {
+                    if (err) throw err;
+                    res.redirect(`/projects/issues/${projectid}`);
+                })
+            });
+        } else {
+            db.query(addIssues, issuesData, (err) => {
+                if (err) throw err;
+                res.redirect(`/projects/issues/${projectid}`);
+            })
+        }
+
+    });
 
 
 
