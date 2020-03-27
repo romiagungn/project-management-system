@@ -1,6 +1,8 @@
-var express = require('express');
-var router = express.Router();
-const helpers = require('../helpers/util')
+const express = require('express');
+const router = express.Router();
+const helpers = require('../helpers/util');
+const moment = require('moment');
+const path = require('path');
 
 module.exports = (db) => {
     // get page project
@@ -228,7 +230,7 @@ module.exports = (db) => {
 
     // to landing member page
     router.get('/members/:projectid', helpers.isLoggedIn, (req, res) => {
-        const { projectid, memberid } = req.params;
+        const { projectid } = req.params;
         const { cid, cnama, cposition, id, nama, position } = req.query;
         let sql = `SELECT COUNT(member) as total  FROM (SELECT members.userid FROM members JOIN users ON members.userid = users.userid WHERE members.projectid = ${projectid} `;
         // start filter logic
@@ -374,12 +376,26 @@ module.exports = (db) => {
         let getProject = `SELECT * FROM projects WHERE projectid=${projectid}`;
         db.query(getProject, (err, getData) => {
             if (err) res.status(500).json(err)
-            res.render('projects/issues/listIssues', {
-                user: req.session.user,
-                title: 'Darsboard Issues',
-                url: 'project',
-                url2: 'issues',
-                result: getData.rows[0]
+            let getIssues = `SELECT i1.*, users.userid, concat(users.firstname, ' ', users.lastname) as nama, concat(u2.firstname, ' ', u2.lastname) author FROM issues i1 
+            LEFT JOIN users ON  users.userid = i1.assignee 
+            LEFT JOIN users u2 ON i1.author = u2.userid  WHERE projectid = ${projectid}`;
+            db.query(getIssues, (err, dataIssues) => {
+                if (err) res.status(500).json(err)
+                let result2 = dataIssues.rows.map(item => {
+                    item.startdate = moment(item.startdate).format('LL')
+                    item.duedate = moment(item.duedate).format('LL')
+                    item.createdate = moment(item.createdate).format('LL')
+                    return item;
+                });
+                res.render('projects/issues/listIssues', {
+                    user: req.session.user,
+                    title: 'Darsboard Issues',
+                    url: 'project',
+                    url2: 'issues',
+                    result: getData.rows[0],
+                    result2,
+                    moment
+                })
             })
         })
     })
@@ -408,44 +424,108 @@ module.exports = (db) => {
         })
     })
 
-    router.post('/issues/:id/add', (req, res, next) => {
-        const projectid = req.params.id;
+    // posting data to issues
+    router.post('/issues/:projectid/add', (req, res) => {
+        const { projectid } = req.params;
         const user = req.session.user;
-        const {
-            tracker,
-            subject,
-            description,
-            status,
-            priority,
-            assignee,
-            startdate,
-            duedate,
-            estimatetime,
-            done,
-            file
-        } = req.body;
-        const addIssues = `INSERT INTO issues (projectid,tracker,subject,description,status,priority,assignee,startdate,duedate,estimatedate,done,files,author,createdate) 
-                            VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,${user.userid},NOW())`
+        const { tracker, subject, description, status, priority, assignee, startdate, duedate, estimatetime, done, file } = req.body;
+        const addIssues = `INSERT INTO issues (projectid, userid, tracker, subject, description, status, priority, assignee, startdate, duedate, estimatedate, done, files, author, createdate) 
+                            VALUES($1,${user.userid},$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,${user.userid},NOW())`;
         const issuesData = [projectid, tracker, subject, description, status, priority, assignee, startdate, duedate, estimatetime, done, file]
         if (req.files) {
-            let file = req.files.images;
+            let file = req.files.file;
             let fileName = file.name.toLowerCase().replace("", Date.now()).split(' ').join('-');
-            file.mv(path.join(__dirname, "..", 'public', "upload", fileName), function (err) {
-                if (err) throw err;
-                issuesData[11] = `/upload/${fileName}`;
+            file.mv(path.join(__dirname, "..", 'public', "images", fileName), function (err) {
+                if (err) res.status(500).json(err);
+                issuesData[11] = `/images/${fileName}`;
                 db.query(addIssues, issuesData, (err) => {
-                    if (err) throw err;
-                    res.redirect(`/projects/issues/${projectid}`);
+                    if (err) res.status(500).json(err);
+                    const addActivity = `INSERT INTO activity (projectid, time, title, description, author) VALUES($1, NOW(), $2, $3, ${user.userid})`
+                    const activityData = [projectid, subject, description];
+                    db.query(addActivity, activityData, (err) => {
+                        if (err) res.status(500).json(err);
+                        res.redirect(`/projects/issues/${projectid}`);
+                    })
                 })
             });
         } else {
             db.query(addIssues, issuesData, (err) => {
-                if (err) throw err;
-                res.redirect(`/projects/issues/${projectid}`);
+                if (err) res.status(500).json(err);
+                const addActivity = `INSERT INTO activity (projectid, time, title, description, author, issueid) VALUES($1, NOW(), $2, $3, ${user.userid}, $5)`
+                const activityData = [projectid, subject, description, issueid];
+                db.query(addActivity, activityData, (err) => {
+                    if (err) res.status(json).status(err)
+                    res.redirect(`/projects/issues/${projectid}`);
+                })
             })
         }
-
     });
+
+    //landing to page project/ Issuess / edit
+    router.get('/issues/:projectid/edit/:issueid', helpers.isLoggedIn, (req, res) => {
+        const { projectid, issueid } = req.params;
+        let getProject = `SELECT * FROM issues WHERE issueid =${issueid} AND projectid=${projectid}`;
+        let getUser = `SELECT users.userid, CONCAT(users.firstname,' ',users.lastname) as nama , projects.projectid FROM members 
+            LEFT JOIN users ON members.userid = users.userid
+            LEFT JOIN projects ON members.projectid = projects.projectid WHERE members.projectid = ${projectid}`;
+        let getIssues = `SELECT issueid, subject, tracker FROM issues GROUP BY issueid HAVING projectid = $1`
+        db.query(getProject, (err, getData) => {
+            if (err) res.status(500).json(err)
+            db.query(getUser, (err, dataUser) => {
+                if (err) res.status(500).json(err)
+                db.query(getIssues, [projectid], (err, dataIssues) => {
+                    if (err) res.status(500).json(err)
+                    res.render('projects/issues/edit', {
+                        user: req.session.user,
+                        title: 'Darsboard Issues Edit',
+                        title2: 'Edit Issues',
+                        url: 'project',
+                        url2: 'issues',
+                        result: getData.rows[0],
+                        result2: dataUser.rows,
+                        result3: dataIssues.rows,
+                        moment
+                    })
+                })
+            })
+        })
+    })
+
+    router.post('/issues/:projectid/edit/:issueid', (req, res) => {
+        const { projectid, issueid } = req.params;
+        const user = req.session.user.userid;
+        const { tracker, subject, description, status, priority, assignee, duedate, done, file, spentime, targetversion, parentask } = req.body;
+        let updateIssues = `UPDATE issues SET tracker= $1, subject = $2, description = $3, status = $4, priority = $5, assignee = $6, duedate = $7, done = $8, files = $9, spentime = $10, targetversion = $11, parentask = $12, author = $13, updatedate = NOW(), closedate = NOW() WHERE issueid = $14`;
+        let issuesData = [tracker, subject, description, status, priority, assignee, duedate, done, file, spentime, targetversion, parentask, user, issueid]
+        if (req.files) {
+            let file = req.files.file;
+            let fileName = file.name.toLowerCase().replace("", Date.now()).split(' ').join('-');
+            file.mv(path.join(__dirname, "..", 'public', "images", fileName), (err) => {
+                if (err) res.status(500).json(err);
+                issuesData[8] = `/images/${fileName}`;
+                console.log(issuesData)
+                db.query(updateIssues, issuesData, (err) => {
+                    if (err) res.status(500).json(err)
+                        res.redirect(`/projects/issues/${projectid}`)
+                })
+            })
+        } else {
+            db.query(updateIssues, issuesData, (err) => {
+                if (err) res.status(500).json(err)
+                    res.redirect(`/projects/issues/${projectid}`)
+            })
+        }
+    })
+
+    router.get('/issues/:projectid/delete/:issueid', (req, res) => {
+        const {projectid, issueid} = req.params
+        let deleteIssues = `DELETE FROM issues WHERE issueid = ${issueid}`;
+        db.query(deleteIssues, (err) => {
+            if(err) res.status(500).json(err)
+            res.redirect(`/projects/issues/${projectid}`)
+        })
+    })
+
 
 
 
