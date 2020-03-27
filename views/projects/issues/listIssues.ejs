@@ -10,7 +10,7 @@
             <div style="position:absolute;width:200%;height:200%;left:0; top:0"></div>
         </div>
         <br>
-        <h2 class="text-center"> <%= title %> <small class="text-muted">#1 Web Project - Company Profile</small>
+        <h2 class="text-center"> <%= title %> <small class="text-muted">#<%= result.projectid%> <%= result.name %></small>
         </h2>
         <hr>
         <br>
@@ -264,26 +264,26 @@
                             <td> <%= item.description %> </td>
                             <td> <%= item.status %> </td>
                             <td> <%= item.priority %> </td>
-                            <td> <%= item.assignee %> </td>
+                            <td> <%= item.nama %> </td>
                             <td> <%= item.startdate %> </td>
                             <td> <%= item.duedate %> </td>
                             <td> <%= item.estimatedate %> </td>
                             <td> <%= item.done %> </td>
                             <td> <a href="<%= item.files %>" <%= item.files == 'null' ? 'disabled' : '' %>> <i
                                         class="fa fa-download fa-2x"></i> </a> </td>
-                            <td> <%= item.spenttime %> </td>
-                            <td> <%= item.targetvision %> </td>
+                            <td> <%= item.spentime %> </td>
+                            <td> <%= item.targetversion %> </td>
                             <td> <%= item.author %> </td>
                             <td> <%= item.createdate %> </td>
                             <td> <%= item.updatedate %> </td>
-                            <td> <%= item.closedate %> </td>
-                            <td> <%= item.parenttask %> </td>
+                            <td> - </td>
+                            <td> <%= item.parentask %> </td>
                             <td style="text-align: left;">
-                                <a href="/projects/issues/<%= result.projectid %>/edit/<%= item.id %>">
+                                <a href="/projects/issues/<%= result.projectid %>/edit/<%= item.issueid %>">
                                     <button type="button" class="btn btn-secondary btn-block btn-sm mb-2">Edit</button>
                                 </a>
                                 <a onclick="return confirm('Are you sure you want to delete this item?');"
-                                    href="/projects/issues/<%= result.projectid %>/delete/<%= item.id %>">
+                                    href="/projects/issues/<%= result.projectid %>/delete/<%= item.issueid %>">
                                     <button type="button" class="btn btn-secondary btn-block btn-sm">Delete</button>
                                 </a>
                             </td>
