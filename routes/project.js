@@ -189,22 +189,67 @@ module.exports = (db) => {
     //get page project/ overview
     router.get('/overview/:projectid', helpers.isLoggedIn, (req, res) => {
         const { projectid } = req.params;
-        let getProject = `SELECT * FROM projects WHERE projectid=${projectid}`;
-        let getUser = `SELECT users.firstname, users.lastname , members.role FROM members 
+        let sql = `SELECT * FROM projects WHERE projectid=${projectid}`;
+        let sql1 = `SELECT users.firstname, users.lastname , members.role FROM members 
         LEFT JOIN users ON members.userid = users.userid 
         LEFT JOIN projects ON members.projectid = projects.projectid
         WHERE members.projectid = ${projectid}`;
-        db.query(getUser, (err, dataUser) => {
+        let sql2 = `SELECT * FROM issues WHERE projectid = ${projectid}`
+        db.query(sql, (err, getData) => {
             if (err) res.status(500).json(err)
-            db.query(getProject, (err, getData) => {
+            db.query(sql1, (err, dataUser) => {
                 if (err) res.status(500).json(err)
-                res.render('projects/overview', {
-                    user: req.session.user,
-                    title: 'Darsboard Overview',
-                    url: 'projects',
-                    url2: 'overview',
-                    result: getData.rows[0],
-                    result2: dataUser.rows
+                db.query(sql2, (err, dataIssues) => {
+                    if (err) res.status(500).json(err)
+                    let bugOpen = 0;
+                    let bugTotal = 0;
+                    let featureOpen = 0;
+                    let featureTotal = 0;
+                    let supportOpen = 0;
+                    let supportTotal = 0;
+
+                    dataIssues.rows.forEach(item => {
+                        if (item.tracker == 'bug' && item.status !== "Closed") {
+                            bugOpen += 1;
+                        }
+                        if (item.tracker == 'bug') {
+                            bugTotal += 1;
+                        }
+                    })
+
+                    dataIssues.rows.forEach(item => {
+                        if (item.tracker == 'feature' && item.status !== "Closed") {
+                            featureOpen += 1;
+                        }
+                        if (item.tracker == 'feature') {
+                            featureTotal += 1;
+                        }
+                    })
+
+                    dataIssues.rows.forEach(item => {
+                        if (item.tracker == 'support' && item.status !== "Closed") {
+                            supportOpen += 1;
+                        }
+                        if (item.tracker == 'support') {
+                            supportTotal += 1;
+                        }
+                    })
+
+                    res.render('projects/overview', {
+                        user: req.session.user,
+                        title: 'Darsboard Overview',
+                        url: 'projects',
+                        url2: 'overview',
+                        result: getData.rows[0],
+                        result2: dataUser.rows,
+                        result3: dataIssues.rows,
+                        bugOpen,
+                        bugTotal,
+                        supportOpen,
+                        supportTotal,
+                        featureOpen,
+                        featureTotal
+                    })
                 })
             })
         })
@@ -402,7 +447,7 @@ module.exports = (db) => {
             const limit = 2;
             const offset = (page - 1) * limit;
             const total = totalData.rows[0].total
-            const pages = Math.ceil(total/limit);
+            const pages = Math.ceil(total / limit);
             let getIssues = `SELECT i1.*, users.userid, concat(users.firstname, ' ', users.lastname) as nama, concat(u2.firstname, ' ', u2.lastname) author FROM issues i1 
             LEFT JOIN users ON  users.userid = i1.assignee 
             LEFT JOIN users u2 ON i1.author = u2.userid  WHERE projectid = ${projectid}`;
@@ -549,22 +594,22 @@ module.exports = (db) => {
                 console.log(issuesData)
                 db.query(updateIssues, issuesData, (err) => {
                     if (err) res.status(500).json(err)
-                        res.redirect(`/projects/issues/${projectid}`)
+                    res.redirect(`/projects/issues/${projectid}`)
                 })
             })
         } else {
             db.query(updateIssues, issuesData, (err) => {
                 if (err) res.status(500).json(err)
-                    res.redirect(`/projects/issues/${projectid}`)
+                res.redirect(`/projects/issues/${projectid}`)
             })
         }
     })
 
     router.get('/issues/:projectid/delete/:issueid', (req, res) => {
-        const {projectid, issueid} = req.params
+        const { projectid, issueid } = req.params
         let deleteIssues = `DELETE FROM issues WHERE issueid = ${issueid}`;
         db.query(deleteIssues, (err) => {
-            if(err) res.status(500).json(err)
+            if (err) res.status(500).json(err)
             res.redirect(`/projects/issues/${projectid}`)
         })
     })
