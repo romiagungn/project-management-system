@@ -373,12 +373,47 @@ module.exports = (db) => {
     //get page project/ Issuess
     router.get('/issues/:projectid', helpers.isLoggedIn, (req, res) => {
         const { projectid } = req.params;
-        let getProject = `SELECT * FROM projects WHERE projectid=${projectid}`;
-        db.query(getProject, (err, getData) => {
+        const { cissues, csubject, ctracker, issues, subject, tracker } = req.query
+        let sql = `SELECT count(total) AS total FROM (SELECT i1.*, users.userid, concat(users.firstname, ' ', users.lastname) as fullname, concat(u2.firstname, ' ', u2.lastname) author FROM issues i1 INNER JOIN users ON  users.userid = i1.assignee INNER JOIN users u2 ON i1.author = u2.userid  WHERE projectid = ${projectid}`;
+        // start filter logic
+        let result = []
+
+        if (cissues && issues) {
+            result.push(`issueid = ${issues}`)
+        }
+        if (csubject && subject) {
+            result.push(`subject LIKE '%${subject}%'`)
+        }
+        if (ctracker && tracker) {
+            result.push(`tracker = '${tracker}'`)
+        }
+        if (result.length > 0) {
+            sql += ` AND ${result.join(' AND ')}`
+        }
+
+        sql += `) AS total`
+        // end filter logic
+        db.query(sql, (err, totalData) => {
             if (err) res.status(500).json(err)
+
+            // start pagenation members logic
+            const link = (req.url == `/issues/${projectid}`) ? `/issues/${projectid}/?page=1` : req.url;
+            const page = req.query.page || 1;
+            const limit = 2;
+            const offset = (page - 1) * limit;
+            const total = totalData.rows[0].total
+            const pages = Math.ceil(total/limit);
             let getIssues = `SELECT i1.*, users.userid, concat(users.firstname, ' ', users.lastname) as nama, concat(u2.firstname, ' ', u2.lastname) author FROM issues i1 
             LEFT JOIN users ON  users.userid = i1.assignee 
             LEFT JOIN users u2 ON i1.author = u2.userid  WHERE projectid = ${projectid}`;
+
+            if (result.length > 0) {
+                getIssues += ` AND ${result.join(' AND ')}`
+            }
+
+            getIssues += ` ORDER BY issueid ASC`
+            getIssues += ` LIMIT ${limit} OFFSET ${offset}`
+            // end pagenation members logic
             db.query(getIssues, (err, dataIssues) => {
                 if (err) res.status(500).json(err)
                 let result2 = dataIssues.rows.map(item => {
@@ -387,14 +422,22 @@ module.exports = (db) => {
                     item.createdate = moment(item.createdate).format('LL')
                     return item;
                 });
-                res.render('projects/issues/listIssues', {
-                    user: req.session.user,
-                    title: 'Darsboard Issues',
-                    url: 'project',
-                    url2: 'issues',
-                    result: getData.rows[0],
-                    result2,
-                    moment
+                let getProject = `SELECT * FROM projects WHERE projectid = ${projectid}`
+                db.query(getProject, (err, data) => {
+                    if (err) res.status(500).json(err)
+                    res.render('projects/issues/listIssues', {
+                        user: req.session.user,
+                        title: 'Darsboard Issues',
+                        url: 'project',
+                        url2: 'issues',
+                        result: data.rows[0],
+                        result2,
+                        moment,
+                        link,
+                        pages,
+                        page,
+                        memberMessage: req.flash('memberMessage')
+                    })
                 })
             })
         })
