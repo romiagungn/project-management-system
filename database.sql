@@ -44,13 +44,13 @@ CREATE TABLE issues
     estimatedate REAL,
     done INT,
     files VARCHAR(100),
-    spenttime REAL,
+    spentime REAL,
     targetversion VARCHAR(100),
     author INT,
     createdate TIMESTAMP,
     updatedate TIMESTAMP,
     closedate TIMESTAMP,
-    parenttask INT,
+    parentask INT,
     FOREIGN KEY (userid) REFERENCES users(userid),
     FOREIGN KEY (projectid) REFERENCES projects(projectid)
 );
@@ -64,5 +64,8 @@ CREATE TABLE activity
     description TEXT,
     author VARCHAR(50),
     projectid INT,
-    FOREIGN KEY (projectid) REFERENCES projects(projectid)
+    issueid INT,
+    FOREIGN KEY (projectid) REFERENCES projects(projectid),
+    FOREIGN KEY (author) REFERENCES users(userid),
+    FOREIGN KEY (issueid) REFERENCES issues(issueid)
 )

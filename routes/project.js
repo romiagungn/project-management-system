@@ -92,9 +92,10 @@ module.exports = (db) => {
         if (name && member) {
             const insertId = `INSERT INTO projects (name) VALUES ('${name}')`;
             db.query(insertId, (err, dataProject) => {
-
+                if(err) res.status(500).json(err)
                 let selectidMax = `SELECT MAX (projectid) FROM projects`;
                 db.query(selectidMax, (err, dataMax) => {
+                    if(err) res.status(500).json(err)
                     let insertidMax = dataMax.rows[0].max;
                     let insertMember = 'INSERT INTO members (userid, role, projectid) VALUES '
                     if (typeof member == 'string') {
@@ -258,15 +259,64 @@ module.exports = (db) => {
     //get page project/ actoivity
     router.get('/activity/:projectid', helpers.isLoggedIn, (req, res) => {
         const { projectid } = req.params;
-        let getProject = `SELECT * FROM projects WHERE projectid=${projectid}`;
-        db.query(getProject, (err, getData) => {
+        let sql = `SELECT activityid, (time AT TIME ZONE 'Asia/Jakarta' AT TIME ZONE 'asia/jakarta')::DATE dateactivity, (time AT TIME ZONE 'Asia/Jakarta' AT time zone 'asia/jakarta')::time timeactivity, title, description, CONCAT(users.firstname,' ',users.lastname) AS nama FROM activity 
+                    INNER JOIN users ON activity.author = users.userid
+                    WHERE projectid = ${projectid} ORDER BY activityid DESC`
+        let sql2 = `SELECT DISTINCT members.projectid, projects.name projectname FROM members INNER JOIN projects USING (projectid) INNER JOIN users USING (userid) WHERE projectid=${projectid}`;
+
+        function convertDateTerm(date) {
+            date = moment(date).format('YYYY-MM-DD')
+            const today = moment().format('YYYY-MM-DD')
+            const yesterday = moment().subtract(1, "days").format("YYYY-MM-DD");
+            if (date == today) {
+                return "Today";
+            } else if (date == yesterday) {
+                return "Yesterday"
+            }
+            return moment(date).format("MMMM Do, YYYY")
+        }
+        db.query(sql, (err, dataActivity) => {
             if (err) res.status(500).json(err)
-            res.render('projects/activity', {
-                user: req.session.user,
-                title: 'Darsboard Activity',
-                url: 'projects',
-                url2: 'activity',
-                result: getData.rows[0]
+            db.query(sql2, (err, getData) => {
+                if (err) res.status(500).json(err)
+                let result2 = getData.rows;
+                let result3 = dataActivity.rows;
+
+                result3 = result3.map(data => {
+                    data.dateactivity = moment(data.dateactivity).format('YYYY-MM-DD')
+                    data.timeactivity = moment(data.timeactivity, 'HH:mm:ss.SSS').format('HH:mm:ss')
+                    return data
+                })
+
+                let dateonly = result3.map(data => data.dateactivity)
+                dateunix = dateonly.filter((date, index, arr) => {
+                    return arr.indexOf(date) == index
+                })
+
+                let activitydate = dateunix.map(date => {
+                    let dataindate = result3.filter(item => item.dateactivity == date);
+                    return {
+                        date: convertDateTerm(date),
+                        data: dataindate
+                    }
+                })
+
+                projectname = result2.map(data => data.projectname)
+
+                let sql2 = `SELECT * FROM projects WHERE projectid = ${projectid}`;
+                db.query(sql2, (err, data) => {
+                    if(err) res.status(500).json(err)
+                    res.render('projects/activity', {
+                        user: req.session.user,
+                        title: 'Darsboard Activity',
+                        url: 'projects',
+                        url2: 'activity',
+                        result: data.rows[0],
+                        activitydate,
+                        result3,
+                        moment
+                    })
+                })
             })
         })
     })
@@ -360,7 +410,7 @@ module.exports = (db) => {
     })
 
     // to post add member at member page
-    router.post('/members/:projectid/add', helpers.isLoggedIn, (req, res, next) => {
+    router.post('/members/:projectid/add', helpers.isLoggedIn, (req, res) => {
         const { projectid } = req.params
         const { inputmember, inputposition } = req.body
         let sql = `INSERT INTO members(userid, role, projectid) VALUES(${inputmember}, '${inputposition}', ${projectid})`
@@ -444,7 +494,7 @@ module.exports = (db) => {
             // start pagenation members logic
             const link = (req.url == `/issues/${projectid}`) ? `/issues/${projectid}/?page=1` : req.url;
             const page = req.query.page || 1;
-            const limit = 2;
+            const limit = 3;
             const offset = (page - 1) * limit;
             const total = totalData.rows[0].total
             const pages = Math.ceil(total / limit);
@@ -528,8 +578,8 @@ module.exports = (db) => {
                 issuesData[11] = `/images/${fileName}`;
                 db.query(addIssues, issuesData, (err) => {
                     if (err) res.status(500).json(err);
-                    const addActivity = `INSERT INTO activity (projectid, time, title, description, author) VALUES($1, NOW(), $2, $3, ${user.userid})`
-                    const activityData = [projectid, subject, description];
+                    const addActivity = `INSERT INTO activity (projectid, time, title, description, author) VALUES ($1, NOW(), $2,'[${status}] [${tracker}] [${subject}] - Done: ${done}%', ${user.userid})`
+                    const activityData = [projectid, subject];
                     db.query(addActivity, activityData, (err) => {
                         if (err) res.status(500).json(err);
                         res.redirect(`/projects/issues/${projectid}`);
@@ -539,8 +589,8 @@ module.exports = (db) => {
         } else {
             db.query(addIssues, issuesData, (err) => {
                 if (err) res.status(500).json(err);
-                const addActivity = `INSERT INTO activity (projectid, time, title, description, author, issueid) VALUES($1, NOW(), $2, $3, ${user.userid}, $5)`
-                const activityData = [projectid, subject, description, issueid];
+                const addActivity = `INSERT INTO activity (projectid, time, title, description, author) VALUES ($1, NOW(), $2,'[${status}] [${tracker}] [${subject}] - Done: ${done}%', ${user.userid})`
+                const activityData = [projectid, subject];
                 db.query(addActivity, activityData, (err) => {
                     if (err) res.status(json).status(err)
                     res.redirect(`/projects/issues/${projectid}`);
