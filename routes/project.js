@@ -537,13 +537,10 @@ module.exports = (db) => {
             const offset = (page - 1) * limit;
             const total = totalData.rows[0].total
             const pages = Math.ceil(total / limit);
-            let getIssues = `SELECT users.userid, CONCAT(users.firstname,' ',users.lastname) nama, issues.issueid, issues.projectid, issues.tracker, issues.subject, 
-            issues.description, issues.status, issues.priority, issues.assignee, issues.startdate, issues.duedate, issues.estimatedate, issues.done, issues.files, 
-            issues.spentime,issues.targetversion, issues.author, CONCAT(u2.firstname, ' ', u2.lastname) authorname, issues.createdate, issues.updatedate, issues.closedate, issues.parentask, i2.subject issuename 
-            FROM issues 
-            LEFT JOIN users ON issues.assignee=users.userid 
-            LEFT JOIN users u2 ON issues.author=u2.userid 
-            LEFT JOIN issues i2 ON issues.parentask = i2.issueid WHERE issues.projectid=${projectid}`
+            let getIssues = `SELECT i1.*, users.userid, concat(users.firstname, ' ', users.lastname) as nama, concat(u2.firstname, ' ', u2.lastname) author, i2.subject issuename FROM issues i1 
+            LEFT JOIN users ON  users.userid = i1.assignee
+            LEFT JOIN users u2 ON i1.author = u2.userid  
+            LEFT JOIN issues i2 ON i1.parentask = i2.issueid WHERE i1.projectid =${projectid}`
 
             if (result.length > 0) {
                 getIssues += ` AND ${result.join(' AND ')}`
