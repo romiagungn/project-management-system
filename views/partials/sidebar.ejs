@@ -4,19 +4,34 @@
     <div class="col-2" id="sidebar-wrapper" style="background-color: #BDC3C7;">
         <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
             <br>
-            <div class="sidebar-heading" style="font-size: xx-large;"> Detail Projects </div>
-                <div class="container">
+            <div class="sidebar-heading" style="font-size: x-large;">
+                <a class="nav-link" href="/projects" style="color: black;"> Main Menu </div>
+            </a>
+            <div class="container">
+
+                <li class="nav-item">
+                    <a class="nav-link list-group-item-action <%= url2 == 'overview' ? 'active' : '' %> " style=" color:black;"
+                        href="/projects/overview/<%= result.projectid %>"> Overview </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link list-group-item-action <%= url2 == 'activity' ? 'active' : '' %>" style=" color:black;"
+                        href="/projects/activity/<%= result.projectid %>"> Activity </a>
+                </li>
+
                 <br>
-                <a class="nav-link list-group-item-action"
-                    style=" color:black;" href="/projects/overview/<%= result.projectid %>" >Overview</a>
-                <a class="nav-link list-group-item-action"
-                    style=" color:black;" href="/projects/activity/<%= result.projectid %>">Activity</a>
-                    <br>
-                <a class="nav-link list-group-item-action"
-                    style=" color:black;" href="/projects/members/<%= result.projectid %>">Members</a>
-                <a class="nav-link list-group-item-action"
-                    style=" color:black;" href="/projects/issues/<%= result.projectid %>">Issues</a>
-                </div>
+
+                <li class="nav-item">
+                    <a class="nav-link list-group-item-action <%= url2 == 'members' ? 'active' : '' %>" style=" color:black;"
+                        href="/projects/members/<%= result.projectid %>"> Members </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link list-group-item-action <%= url2 == 'issues' ? 'active' : '' %>" style=" color:black;"
+                        href="/projects/issues/<%= result.projectid %>"> Issues </a>
+                </li>
+
             </div>
         </div>
-        <!-- /#wrapper -->
+    </div>
+    <!-- /#wrapper -->

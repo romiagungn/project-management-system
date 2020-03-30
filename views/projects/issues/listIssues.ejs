@@ -245,7 +245,7 @@
                             <th scope="col">Estimated Time (hours)</th>
                             <th scope="col">Done (%)</th>
                             <th scope="col">File</th>
-                            <th scope="col">Spent Time (hours</th>
+                            <th scope="col">Spent Time (hours) </th>
                             <th scope="col">Target Version</th>
                             <th scope="col">Author</th>
                             <th scope="col">Create Date</th>
@@ -271,13 +271,13 @@
                             <td> <%= item.done %> </td>
                             <td> <a href="<%= item.files %>" <%= item.files == 'null' ? 'disabled' : '' %>> <i
                                         class="fa fa-download fa-2x"></i> </a> </td>
-                            <td> <%= item.spentime %> </td>
-                            <td> <%= item.targetversion %> </td>
+                            <td> <%= item.spentime == result4.spentime ? item.spentime : '-' %> </td>
+                            <td> <%= item.targetversion == result4.targetversion ? item.targetversion : '-' %> </td>
                             <td> <%= item.author %> </td>
                             <td> <%= item.createdate %> </td>
-                            <td> <%= item.updatedate %> </td>
-                            <td> - </td>
-                            <td> <%= item.parentask %> </td>
+                            <td> <%= moment(item.updatedate).format('lll') == moment(result4.updatedate).format('lll') ? moment(item.updatedate).format('lll') : '-' %> </td>
+                            <td> <%= moment(item.closedate).format('lll') == moment(result4.closedate).format('lll') ? moment(item.closedate).format('lll') : '-' %> </td>
+                            <td> <%= item.issuename %> </td>
                             <td style="text-align: left;">
                                 <a href="/projects/issues/<%= result.projectid %>/edit/<%= item.issueid %>">
                                     <button type="button" class="btn btn-secondary btn-block btn-sm mb-2">Edit</button>

@@ -17,7 +17,8 @@ module.exports = (db) => {
             if (err) return res.send(err)
             res.render('profile/listProfile', {
                 title: 'Edit Profile',
-                result
+                result,
+                url : 'profile'
             })
         });
     });

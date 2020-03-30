@@ -92,10 +92,10 @@ module.exports = (db) => {
         if (name && member) {
             const insertId = `INSERT INTO projects (name) VALUES ('${name}')`;
             db.query(insertId, (err, dataProject) => {
-                if(err) res.status(500).json(err)
+                if (err) res.status(500).json(err)
                 let selectidMax = `SELECT MAX (projectid) FROM projects`;
                 db.query(selectidMax, (err, dataMax) => {
-                    if(err) res.status(500).json(err)
+                    if (err) res.status(500).json(err)
                     let insertidMax = dataMax.rows[0].max;
                     let insertMember = 'INSERT INTO members (userid, role, projectid) VALUES '
                     if (typeof member == 'string') {
@@ -305,7 +305,7 @@ module.exports = (db) => {
 
                 let sql2 = `SELECT * FROM projects WHERE projectid = ${projectid}`;
                 db.query(sql2, (err, data) => {
-                    if(err) res.status(500).json(err)
+                    if (err) res.status(500).json(err)
                     res.render('projects/activity', {
                         user: req.session.user,
                         title: 'Darsboard Activity',
@@ -400,7 +400,7 @@ module.exports = (db) => {
                 res.render('projects/members/add', {
                     title: 'Dasboard Members Add',
                     url: 'projects',
-                    url2: 'member',
+                    url2: 'members',
                     result: dataProject.rows[0],
                     result2: dataMember.rows,
                     memberMessage: req.flash('memberMessage')
@@ -498,7 +498,7 @@ module.exports = (db) => {
             const offset = (page - 1) * limit;
             const total = totalData.rows[0].total
             const pages = Math.ceil(total / limit);
-            let getIssues = `SELECT i1.*, users.userid, concat(users.firstname, ' ', users.lastname) as nama, concat(u2.firstname, ' ', u2.lastname) author FROM issues i1 
+            let getIssues = `SELECT i1.*, users.userid, concat(users.firstname, ' ', users.lastname) as nama, concat(u2.firstname, ' ', u2.lastname) author, i1.subject issuename FROM issues i1 
             LEFT JOIN users ON  users.userid = i1.assignee 
             LEFT JOIN users u2 ON i1.author = u2.userid  WHERE projectid = ${projectid}`;
 
@@ -520,18 +520,23 @@ module.exports = (db) => {
                 let getProject = `SELECT * FROM projects WHERE projectid = ${projectid}`
                 db.query(getProject, (err, data) => {
                     if (err) res.status(500).json(err)
-                    res.render('projects/issues/listIssues', {
-                        user: req.session.user,
-                        title: 'Darsboard Issues',
-                        url: 'project',
-                        url2: 'issues',
-                        result: data.rows[0],
-                        result2,
-                        moment,
-                        link,
-                        pages,
-                        page,
-                        memberMessage: req.flash('memberMessage')
+                    let issues = `SELECT * FROM issues WHERE projectid = ${projectid} ORDER BY issueid ASC`;
+                    db.query(issues, (err, issuesData) => {
+                        if(err) res.status(500).json(err)
+                        res.render('projects/issues/listIssues', {
+                            user: req.session.user,
+                            title: 'Darsboard Issues',
+                            url: 'projects',
+                            url2: 'issues',
+                            result: data.rows[0],
+                            result2,
+                            moment,
+                            link,
+                            pages,
+                            page,
+                            memberMessage: req.flash('memberMessage'),
+                            result3: issuesData.rows[0]
+                        })
                     })
                 })
             })
@@ -553,7 +558,7 @@ module.exports = (db) => {
                     user: req.session.user,
                     title: 'Darsboard Issues Add',
                     title2: 'New Issues',
-                    url: 'project',
+                    url: 'projects',
                     url2: 'issues',
                     result: getData.rows[0],
                     result2: dataUser.rows
@@ -578,23 +583,13 @@ module.exports = (db) => {
                 issuesData[11] = `/images/${fileName}`;
                 db.query(addIssues, issuesData, (err) => {
                     if (err) res.status(500).json(err);
-                    const addActivity = `INSERT INTO activity (projectid, time, title, description, author) VALUES ($1, NOW(), $2,'[${status}] [${tracker}] [${subject}] - Done: ${done}%', ${user.userid})`
-                    const activityData = [projectid, subject];
-                    db.query(addActivity, activityData, (err) => {
-                        if (err) res.status(500).json(err);
-                        res.redirect(`/projects/issues/${projectid}`);
-                    })
+                    res.redirect(`/projects/issues/${projectid}`);
                 })
-            });
+            })
         } else {
             db.query(addIssues, issuesData, (err) => {
                 if (err) res.status(500).json(err);
-                const addActivity = `INSERT INTO activity (projectid, time, title, description, author) VALUES ($1, NOW(), $2,'[${status}] [${tracker}] [${subject}] - Done: ${done}%', ${user.userid})`
-                const activityData = [projectid, subject];
-                db.query(addActivity, activityData, (err) => {
-                    if (err) res.status(json).status(err)
-                    res.redirect(`/projects/issues/${projectid}`);
-                })
+                res.redirect(`/projects/issues/${projectid}`);
             })
         }
     });
@@ -617,7 +612,7 @@ module.exports = (db) => {
                         user: req.session.user,
                         title: 'Darsboard Issues Edit',
                         title2: 'Edit Issues',
-                        url: 'project',
+                        url: 'projects',
                         url2: 'issues',
                         result: getData.rows[0],
                         result2: dataUser.rows,
@@ -641,16 +636,25 @@ module.exports = (db) => {
             file.mv(path.join(__dirname, "..", 'public', "images", fileName), (err) => {
                 if (err) res.status(500).json(err);
                 issuesData[8] = `/images/${fileName}`;
-                console.log(issuesData)
                 db.query(updateIssues, issuesData, (err) => {
                     if (err) res.status(500).json(err)
-                    res.redirect(`/projects/issues/${projectid}`)
+                    const addActivity = `INSERT INTO activity (projectid, time, title, description, author) VALUES ($1, NOW(), $2,'[${status}] [${tracker}] [${subject}] - Done: ${done}%', $3)`
+                    const activityData = [projectid, subject, user];
+                    db.query(addActivity, activityData, (err) => {
+                        if (err) res.status(500).json(err);
+                        res.redirect(`/projects/issues/${projectid}`)
+                    })
                 })
             })
         } else {
             db.query(updateIssues, issuesData, (err) => {
                 if (err) res.status(500).json(err)
-                res.redirect(`/projects/issues/${projectid}`)
+                const addActivity = `INSERT INTO activity (projectid, time, title, description, author) VALUES ($1, NOW(), $2,'[${status}] [${tracker}] [${subject}] - Done: ${done}%', $3)`
+                const activityData = [projectid, subject, user];
+                db.query(addActivity, activityData, (err) => {
+                    if (err) res.status(500).json(err)
+                    res.redirect(`/projects/issues/${projectid}`)
+                })
             })
         }
     })

@@ -57,7 +57,7 @@ module.exports = (db) => {
             if (err) return res.send(err)
 
             const pages = Math.ceil(data.rows.length / limit);
-            const url = req.url == '/' ? '/?page=1' : req.url;
+            const link = req.url == '/' ? '/?page=1' : req.url;
 
             sql += ` LIMIT ${limit} OFFSET ${offset}`;
             // end logic for pagination
@@ -67,11 +67,11 @@ module.exports = (db) => {
                 if (err) return res.send(err)
                 res.render('users/listUsers', {
                     user: req.session.user,
+                    url : 'users',
                     result,
-                    url,
+                    link,
                     pages,
                     page,
-                    url,
                     query: req.query
                 })
             })
