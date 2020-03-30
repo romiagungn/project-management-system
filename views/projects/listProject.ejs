@@ -47,14 +47,15 @@
 
 
     <div class="container">
-        <form method="POST" action="">
+        <form method="POST" action="/projects/option">
             <h3>Options</h3>
             <hr>
             <div class="form-group row">
                 <div class="col-sm-2" style=>Columns</div>
                 <div class="col-sm-2">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="cid" name="checkid" value="true" checked>
+                        <input class="form-check-input" type="checkbox" id="cid" name="checkid" value="true"
+                            <%= option.checkid ? `checked` : `` %>>
                         <label class="form-check-label" for="cid">
                             ID
                         </label>
@@ -63,7 +64,7 @@
                 <div class="col-sm-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="cname" name="checkname" value="true"
-                            checked>
+                            <%= option.checkname ? `checked` : `` %>>
                         <label class="form-check-label" for="cname">
                             Name
                         </label>
@@ -72,7 +73,7 @@
                 <div class="col-sm-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="cmember" name="checkmember" value="true"
-                            checked>
+                            <%= option.checkmember ? `checked` : `` %>>
                         <label class="form-check-label" for="cmember">
                             Member
                         </label>
@@ -87,25 +88,25 @@
     </div>
 
     <div class="container">
-
         <table class="table">
             <thead class="" style="background-color: #787878;">
                 <tr>
-                    <th scope="col" style="text-align: left;">Project ID</th>
-                    <th scope="col" style="text-align: left;">Project Name</th>
-                    <th scope="col" style="text-align: left;">Project Members</th>
+                    <%- option.checkid ? '<th scope="col" style="text-align: left;">Project ID</th>' : '' %>
+                    <%- option.checkname ? '<th scope="col" style="text-align: left;">Project Name</th>' : '' %>
+                    <%- option.checkmember ? '<th scope="col" style="text-align: left;">Project Members</th>' : '' %>
                     <th scope="col" style="text-align: left;">Action</th>
                 </tr>
             </thead>
             <tbody>
                 <% result.forEach(item => { %>
                 <tr>
-                    <th scope="row" style="text-align: left;">
-                        <a class="btn btn-outline-secondary" href="/projects/overview/<%= item.projectid %>" role="button">
+                    <th scope="row" style="text-align: left;" <%= option.checkid ? '' : 'hidden' %>>
+                        <a class="btn btn-outline-secondary" href="/projects/overview/<%= item.projectid %>"
+                            role="button">
                             <%= item.projectid %> </a>
                     </th>
-                    <td style="text-align: left;"><%= item.name %></td>
-                    <td style="text-align: left;"><%= item.nama %></td>
+                    <td style="text-align: left;" <%= option.checkname ? '' : 'hidden' %>><%= item.name %></td>
+                    <td style="text-align: left;" <%= option.checkmember ? '' : 'hidden' %>><%= item.nama %></td>
                     <td style="text-align: left;">
                         <a class="btn btn-dark my-2 my-sm-0" href="/projects/edit/<%= item.projectid %>"
                             role="button">Edit</a>
@@ -136,7 +137,8 @@
             </li>
             <% for (let i = 1; i <= pages; i++) { %>
             <li class="page-item <%= page == i ? 'active' : '' %>">
-                <a class="page-link" href="/projects<%= link.replace(`page=${parseInt(page)}`, `page=${i}`) %>"> <%= i %>
+                <a class="page-link" href="/projects<%= link.replace(`page=${parseInt(page)}`, `page=${i}`) %>">
+                    <%= i %>
                 </a>
             </li>
             <% } %>

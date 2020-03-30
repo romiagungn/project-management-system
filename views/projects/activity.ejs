@@ -21,32 +21,32 @@
         <form action="">
             <div class="row">
                 <% activitydate.forEach((item) => { %>
-                <% item.data.forEach((list) => { %>
-                <div class="col-6">
-                    <div class="card shadow-sm mb-3" style="max-width: 60rem;">
-                        <div class="card-header">
-                            <h5><%= item.date %></h5>
-                        </div>
+                    <div class="col-6">
+                        <div class="card shadow-sm mb-3" style="max-width: 60rem;">
+                            <div class="card-header">
+                                <h5><%= item.date %></h5>
+                            </div>
+                            <% item.data.forEach((list) => { %>
                         <div class="card-body">
-                            <p class="card-text">
+                            <p class="card-text" style="font-size: medium;">
                                 <strong><%= list.title %></strong> - <%= list.description %>
                                 <br>
                                 Author: <%= list.nama %>
                             </p>
                             <p class="card-text">
                                 <strong>
-                                    <span class="badge badge-pill badge-info"> <%= list.dateactivity %>
+                                    <span class="badge badge-pill badge-info" style="font-size: small;"> <%= list.dateactivity %>
                                     </span>
                                 </strong>
                                 <strong>
-                                    <span class="badge badge-pill badge-warning"><%= list.timeactivity %></span>
+                                    <span class="badge badge-pill badge-warning" style="font-size: small;"><%= list.timeactivity %></span>
                                 </strong>
                             </p>
                             <hr>
                         </div>
+                        <% }) %>
                     </div>
                 </div>
-                <% }) %>
                 <% }) %>
             </div>
         </form>

@@ -8,6 +8,7 @@ module.exports = (db) => {
 
     // main page, filtering data/table, and showing data
     router.get('/', helpers.isLoggedIn, (req, res) => {
+        let user = req.session.user
         let sql = `SELECT userid, email, password, CONCAT(firstname,' ',lastname) as name, position, isfulltime FROM users`;
         //filter logic
         let result = [];
@@ -43,8 +44,6 @@ module.exports = (db) => {
         if (result.length > 0) {
             sql += ` WHERE ${result.join(' AND ')}`;
         }
-        console.log(sql)
-        console.log(result)
         sql += ` ORDER BY userid`;
         // end filter
 
@@ -63,25 +62,41 @@ module.exports = (db) => {
             // end logic for pagination
 
             db.query(sql, (err, data) => {
+                if (err) res.status(500).json(err)
                 let result = data.rows;
-                if (err) return res.send(err)
-                res.render('users/listUsers', {
-                    user: req.session.user,
-                    url : 'users',
-                    result,
-                    link,
-                    pages,
-                    page,
-                    query: req.query
+                let sqlOption = `SELECT option FROM users WHERE userid = ${user.userid}`;
+                db.query(sqlOption, (err, optionData) => {
+                    if (err) res.status(500).json(err);
+                    if (err) return res.send(err)
+                    res.render('users/listUsers', {
+                        user,
+                        url: 'users',
+                        result,
+                        link,
+                        pages,
+                        page,
+                        query: req.query,
+                        option: optionData.rows[0].option
+                    })
                 })
             })
         });
     });
 
+    router.post('/', helpers.isLoggedIn, (req, res) => {
+        let user = req.session.user;
+        let sqlEditOption = `UPDATE users SET option='${JSON.stringify(req.body)}' WHERE userid=${user.userid}`;
+        db.query(sqlEditOption, err => {
+            if (err) res.status(500).json(err);
+            res.redirect('/users');
+        })
+    })
+
     // route to add data page
     router.get('/add', helpers.isLoggedIn, (req, res) => {
         res.render('users/add', {
-            title: "PMS Dashboard"
+            title: "PMS Dashboard",
+            url: 'users'
         });
     });
 
@@ -90,8 +105,15 @@ module.exports = (db) => {
         const { email, password, firstname, lastname, position } = req.body;
         const isfulltime = req.body.job == 'Full Time' ? 'Full Time' : 'Part Time';
         bcrypt.hash(password, saltRounds, function (err, hash) {
+            let sql = `INSERT INTO users (email, password, firstname, lastname, position, isfulltime, option, optionprojects, optionmembers, optionissues ) VALUES ($1, $2, $3, $4, $5 , $6,
+                '{"checkid":"true","checkname":"true","checkposition":"true"}', 
+                '{"checkid":"true","checkname":"true","checkmember":"true"}', 
+                '{"checkid":"true","checkname":"true","checkmember":"true"}', 
+                '{"checkid":"true","checktracker":"true","checksubject":"true","checkdesc":"true","checkstatus":"true","checkpriority":"true","checkassignee":"true","checkstartdate":"true", "checkspentime":"true","checkfile":"true","checktarget":"true","checkcreated":"true", "checkupdate":"true","checkclosed":"true","checkparentask":"true"}'
+                )`
+            let dataUsers = [email, hash, firstname, lastname, position, isfulltime];
             if (err) return res.send(err)
-            db.query('INSERT INTO users (email, password, firstname, lastname, position, isfulltime ) VALUES ($1, $2, $3, $4, $5 , $6)', [email, hash, firstname, lastname, position, isfulltime], (err, data) => {
+            db.query(sql, dataUsers, (err) => {
                 if (err) return res.send(err)
                 res.redirect('/users');
             });
@@ -107,7 +129,8 @@ module.exports = (db) => {
             res.render('users/edit', {
                 title: "PMS Dashboard",
                 result,
-                query: req.query
+                query: req.query,
+                url: 'users'
             });
         });
     });
@@ -119,7 +142,6 @@ module.exports = (db) => {
         bcrypt.hash(password, saltRounds, function (err, hash) {
             if (err) return res.send(err)
             let sql = `UPDATE users SET email = '${email}', password = '${hash}', firstname = '${firstname}', lastname = '${lastname}', position = '${position}', isfulltime='${job == 'Full Time' ? 'Full Time' : 'Part Time'}' WHERE userid = ${userid}`;
-            console.log(sql)
             db.query(sql, (err) => {
                 if (err) return res.send(err);
                 res.redirect('/users')
@@ -130,10 +152,8 @@ module.exports = (db) => {
     // delete data
     router.get('/delete/:userid', helpers.isLoggedIn, (req, res) => {
         const { userid } = req.params;
-        console.log(req.params)
         let sql = `DELETE FROM users WHERE userid = ${userid}`
         db.query(sql, (err, data) => {
-            console.log(sql)
             if (err) return res.send(err)
             res.redirect('/users')
         })

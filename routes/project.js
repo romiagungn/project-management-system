@@ -7,6 +7,7 @@ const path = require('path');
 module.exports = (db) => {
     // get page project
     router.get('/', helpers.isLoggedIn, (req, res) => {
+        let user = req.session.user;
         let getData = `SELECT count(id) AS total from (SELECT DISTINCT projects.projectid as id FROM projects LEfT JOIN members ON members.projectid = projects.projectid LEFT JOIN users ON users.userid = members.userid `
         //filter logic
         let result = [];
@@ -53,18 +54,34 @@ module.exports = (db) => {
 
                 db.query(getUser, (err, dataUsers) => {
                     if (err) res.status(500).json(err)
-                    res.render('projects/listProject', {
-                        user: req.session.user,
-                        title: 'Dasrboard Projects',
-                        url: 'projects',
-                        page,
-                        pages,
-                        link,
-                        result: dataProject.rows,
-                        users: dataUsers.rows
+                    let sqlOption = `SELECT optionprojects FROM users WHERE userid = ${user.userid}`;
+                    db.query(sqlOption, (err, dataOption) => {
+                        if (err) res.status(500).json(err)
+                        let option = dataOption.rows[0].optionprojects;
+                        res.render('projects/listProject', {
+                            user,
+                            title: 'Dasrboard Projects',
+                            url: 'projects',
+                            page,
+                            pages,
+                            link,
+                            result: dataProject.rows,
+                            users: dataUsers.rows,
+                            option
+                        })
                     })
                 })
             })
+        })
+    })
+
+    // for option table
+    router.post("/option", helpers.isLoggedIn, (req, res) => {
+        const user = req.session.user;
+        let sqlUpdateOption = `UPDATE users SET optionprojects = '${JSON.stringify(req.body)}' WHERE userid=${user.userid}`;
+        db.query(sqlUpdateOption, (err) => {
+            if (err) res.status(500).json(err);
+            res.redirect('/projects');
         })
     })
 
@@ -175,7 +192,7 @@ module.exports = (db) => {
     })
 
     // to delete project 
-    router.get('/delete/:projectid', helpers.isLoggedIn, (req, res, next) => {
+    router.get('/delete/:projectid', helpers.isLoggedIn, (req, res) => {
         const projectid = req.params.projectid;
         let sqlDeleteProject = `DELETE FROM members WHERE projectid=${projectid};
                                 DELETE FROM projects WHERE projectid=${projectid}`;
@@ -371,22 +388,40 @@ module.exports = (db) => {
                 let sqlProject = `SELECT * FROM projects WHERE projectid = ${projectid}`;
                 db.query(sqlProject, (err, dataProject) => {
                     if (err) res.status(500).json(err)
-                    res.render('projects/members/listMembers', {
-                        user: req.session.user,
-                        title: 'Dasboard Members',
-                        url: 'projects',
-                        url2: 'members',
-                        pages,
-                        page,
-                        link,
-                        result: dataProject.rows[0],
-                        result2: dataMember.rows,
-                        memberMessage: req.flash('memberMessage')
+                    let user = req.session.user
+                    let sqlOption = `SELECT optionmembers FROM users WHERE userid=${user.userid}`;
+                    db.query(sqlOption, (err, option) => {
+                        if (err) res.status(500).json(err);
+                        res.render('projects/members/listMembers', {
+                            user: req.session.user,
+                            title: 'Dasboard Members',
+                            url: 'projects',
+                            url2: 'members',
+                            pages,
+                            page,
+                            link,
+                            result: dataProject.rows[0],
+                            result2: dataMember.rows,
+                            option: option.rows[0].optionmembers,
+                            memberMessage: req.flash('memberMessage')
+                        })
                     })
                 })
             })
         })
     })
+
+    // post option at member page
+    router.post('/members/:projectid', helpers.isLoggedIn, (req, res) => {
+        let user = req.session.user
+        const { projectid } = req.params;
+        let sqlUpdateOption = `UPDATE users SET optionmembers ='${JSON.stringify(req.body)}' WHERE userid = ${user.userid}`;
+        db.query(sqlUpdateOption, err => {
+            if (err) res.status(500).json(err)
+            res.redirect(`/projects/members/${projectid}`);
+        })
+    })
+
 
     // landing to add member page at member page
     router.get('/members/:projectid/add', helpers.isLoggedIn, (req, res) => {
@@ -468,6 +503,7 @@ module.exports = (db) => {
     //get page project/ Issuess
     router.get('/issues/:projectid', helpers.isLoggedIn, (req, res) => {
         const { projectid } = req.params;
+        const user = req.session.user;
         const { cissues, csubject, ctracker, issues, subject, tracker } = req.query
         let sql = `SELECT count(total) AS total FROM (SELECT i1.*, users.userid, concat(users.firstname, ' ', users.lastname) as fullname, concat(u2.firstname, ' ', u2.lastname) author FROM issues i1 INNER JOIN users ON  users.userid = i1.assignee INNER JOIN users u2 ON i1.author = u2.userid  WHERE projectid = ${projectid}`;
         // start filter logic
@@ -523,23 +559,45 @@ module.exports = (db) => {
                     let issues = `SELECT * FROM issues WHERE projectid = ${projectid} ORDER BY issueid ASC`;
                     db.query(issues, (err, issuesData) => {
                         if (err) res.status(500).json(err)
-                        res.render('projects/issues/listIssues', {
-                            user: req.session.user,
-                            title: 'Darsboard Issues',
-                            url: 'projects',
-                            url2: 'issues',
-                            result: data.rows[0],
-                            result2,
-                            moment,
-                            link,
-                            pages,
-                            page,
-                            memberMessage: req.flash('memberMessage'),
-                            result3: issuesData.rows[0]
+
+                        let sqlOption = `SELECT optionissues FROM users WHERE userid=${user.userid}`;
+                        db.query(sqlOption, (err, optionissue) => {
+                            if (err) res.status(500).json(err);
+                            let option = optionissue.rows[0].optionissues;
+                            console.log(option)
+                            
+                            res.render('projects/issues/listIssues', {
+                                user,
+                                title: 'Darsboard Issues',
+                                url: 'projects',
+                                url2: 'issues',
+                                result: data.rows[0],
+                                result2,
+                                moment,
+                                link,
+                                pages,
+                                page,
+                                memberMessage: req.flash('memberMessage'),
+                                result3: issuesData.rows[0],
+                                option
+                            })
                         })
                     })
                 })
             })
+        })
+    })
+
+    // for option column issues page
+    router.post('/issues/:projectid', helpers.isLoggedIn, (req, res) => {
+        const {projectid}= req.params
+        const user = req.session.user
+
+        let sqlOption = `UPDATE users SET optionissues='${JSON.stringify(req.body)}' WHERE userid=${user.userid}`
+        console.log(sqlOption)
+        db.query(sqlOption, err => {
+            if (err) res.status(500).json(err)
+            res.redirect(`/projects/issues/${projectid}`)
         })
     })
 
@@ -641,7 +699,7 @@ module.exports = (db) => {
                 issuesData[8] = `/images/${fileName}`;
                 db.query(updateIssues, issuesData, (err) => {
                     if (err) res.status(500).json(err)
-                    const addActivity = `INSERT INTO activity (projectid, time, title, description, author) VALUES ($1, NOW(), $2,'[${status}] [${tracker}] [${subject}] - Done: ${done}%', $3)`
+                    const addActivity = `INSERT INTO activity (projectid, time, title, description, author) VALUES ($1, NOW(), $2,'[${status}] [${tracker}] [${description}] - Done: ${done}%', $3)`
                     const activityData = [projectid, subject, user];
                     db.query(addActivity, activityData, (err) => {
                         if (err) res.status(500).json(err);
@@ -652,7 +710,7 @@ module.exports = (db) => {
         } else {
             db.query(updateIssues, issuesData, (err) => {
                 if (err) res.status(500).json(err)
-                const addActivity = `INSERT INTO activity (projectid, time, title, description, author) VALUES ($1, NOW(), $2,'[${status}] [${tracker}] [${subject}] - Done: ${done}%', $3)`
+                const addActivity = `INSERT INTO activity (projectid, time, title, description, author) VALUES ($1, NOW(), $2,'[${status}] [${tracker}] [${description}] - Done: ${done}%', $3)`
                 const activityData = [projectid, subject, user];
                 db.query(addActivity, activityData, (err) => {
                     if (err) res.status(500).json(err)
