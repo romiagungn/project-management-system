@@ -132,15 +132,20 @@
                         <tbody>
                             <% result2.forEach( item => { %>
                             <td style="text-align: left;" <%= option.checkid ? '' : 'hidden' %>> <%= item.id %> </td>
-                            <td style="text-align: left;" <%= option.checkname ? '' : 'hidden' %>> <%= item.nama %> </td>
-                            <td style="text-align: left;" <%= option.checkmember ? '' : 'hidden' %>> <%= item.role %> </td>
+                            <td style="text-align: left;" <%= option.checkname ? '' : 'hidden' %>> <%= item.nama %>
+                            </td>
+                            <td style="text-align: left;" <%= option.checkmember ? '' : 'hidden' %>> <%= item.role %>
+                            </td>
                             <td style="text-align: left;">
                                 <a class="btn btn-dark my-2 my-sm-0"
                                     href="/projects/members/<%= result.projectid %>/edit/<%= item.id %>"
                                     role="button">Edit</a>
+
+                                <% if (user.isadmin) { %>
                                 <a class="btn btn-dark my-2 my-sm-0 delete"
                                     onclick="return confirm('Are you sure you want to delete this item?');"
                                     href="/projects/members/<%= result.projectid %>/delete/<%= item.id %>">Delete</a>
+                                <% } %>
                             </td>
                         </tbody>
                         <% }) %>

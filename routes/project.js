@@ -67,6 +67,8 @@ module.exports = (db) => {
                             link,
                             result: dataProject.rows,
                             users: dataUsers.rows,
+                            projectMessage: req.flash('projectMessage'),
+                            permissionMessage: req.flash('permissionMessage'),
                             option
                         })
                     })
@@ -438,7 +440,8 @@ module.exports = (db) => {
                     url2: 'members',
                     result: dataProject.rows[0],
                     result2: dataMember.rows,
-                    memberMessage: req.flash('memberMessage')
+                    memberMessage: req.flash('memberMessage'),
+                    user: req.session.user
                 })
             })
         })
@@ -534,9 +537,13 @@ module.exports = (db) => {
             const offset = (page - 1) * limit;
             const total = totalData.rows[0].total
             const pages = Math.ceil(total / limit);
-            let getIssues = `SELECT i1.*, users.userid, concat(users.firstname, ' ', users.lastname) as nama, concat(u2.firstname, ' ', u2.lastname) author, i1.subject issuename FROM issues i1 
-            LEFT JOIN users ON  users.userid = i1.assignee 
-            LEFT JOIN users u2 ON i1.author = u2.userid  WHERE projectid = ${projectid}`;
+            let getIssues = `SELECT users.userid, CONCAT(users.firstname,' ',users.lastname) nama, issues.issueid, issues.projectid, issues.tracker, issues.subject, 
+            issues.description, issues.status, issues.priority, issues.assignee, issues.startdate, issues.duedate, issues.estimatedate, issues.done, issues.files, 
+            issues.spentime,issues.targetversion, issues.author, CONCAT(u2.firstname, ' ', u2.lastname) authorname, issues.createdate, issues.updatedate, issues.closedate, issues.parentask, i2.subject issuename 
+            FROM issues 
+            LEFT JOIN users ON issues.assignee=users.userid 
+            LEFT JOIN users u2 ON issues.author=u2.userid 
+            LEFT JOIN issues i2 ON issues.parentask = i2.issueid WHERE issues.projectid=${projectid}`
 
             if (result.length > 0) {
                 getIssues += ` AND ${result.join(' AND ')}`
@@ -559,13 +566,12 @@ module.exports = (db) => {
                     let issues = `SELECT * FROM issues WHERE projectid = ${projectid} ORDER BY issueid ASC`;
                     db.query(issues, (err, issuesData) => {
                         if (err) res.status(500).json(err)
-
+                        let result3 = issuesData.rows[0]
                         let sqlOption = `SELECT optionissues FROM users WHERE userid=${user.userid}`;
                         db.query(sqlOption, (err, optionissue) => {
                             if (err) res.status(500).json(err);
                             let option = optionissue.rows[0].optionissues;
-                            console.log(option)
-                            
+
                             res.render('projects/issues/listIssues', {
                                 user,
                                 title: 'Darsboard Issues',
@@ -578,7 +584,7 @@ module.exports = (db) => {
                                 pages,
                                 page,
                                 memberMessage: req.flash('memberMessage'),
-                                result3: issuesData.rows[0],
+                                result3,
                                 option
                             })
                         })
@@ -590,11 +596,10 @@ module.exports = (db) => {
 
     // for option column issues page
     router.post('/issues/:projectid', helpers.isLoggedIn, (req, res) => {
-        const {projectid}= req.params
+        const { projectid } = req.params
         const user = req.session.user
 
         let sqlOption = `UPDATE users SET optionissues='${JSON.stringify(req.body)}' WHERE userid=${user.userid}`
-        console.log(sqlOption)
         db.query(sqlOption, err => {
             if (err) res.status(500).json(err)
             res.redirect(`/projects/issues/${projectid}`)
@@ -655,19 +660,19 @@ module.exports = (db) => {
     //landing to page project/ Issuess / edit
     router.get('/issues/:projectid/edit/:issueid', helpers.isLoggedIn, (req, res) => {
         const { projectid, issueid } = req.params;
-        let getProject = `SELECT i1.*, projects.name FROM issues i1 
+        let getProject = `SELECT i1.*, projects.name, i1.subject issuename FROM issues i1 
             LEFT JOIN projects ON i1.projectid = projects.projectid
-            WHERE issueid = ${issueid}
+            LEFT JOIN issues ON i1.parentask = i1.issueid
+            WHERE i1.issueid = ${issueid}
             AND projects.projectid = ${projectid}`;
-        let getUser = `SELECT users.userid, CONCAT(users.firstname,' ',users.lastname) as nama , projects.projectid FROM members 
-            LEFT JOIN users ON members.userid = users.userid
-            LEFT JOIN projects ON members.projectid = projects.projectid WHERE members.projectid = ${projectid}`;
-        let getIssues = `SELECT issueid, subject, tracker FROM issues WHERE issueid  NOT IN (SELECT issueid FROM issues WHERE issueid = $1) GROUP BY issueid HAVING projectid = $2`
         db.query(getProject, (err, getData) => {
             if (err) res.status(500).json(err)
+            let getUser = `SELECT userid, email, CONCAT(firstname, ' ', lastname) AS nama FROM users WHERE userid IN (SELECT userid FROM members WHERE projectid = ${projectid})`;
             db.query(getUser, (err, dataUser) => {
                 if (err) res.status(500).json(err)
-                db.query(getIssues, [issueid, projectid], (err, dataIssues) => {
+                const subquery = `SELECT issues.issueid FROM issues WHERE projectid=${projectid} AND issueid=${issueid}`;
+                let getIssues = `SELECT issues.issueid, subject FROM issues WHERE issueid NOT IN (${subquery})`
+                db.query(getIssues, (err, dataIssues) => {
                     if (err) res.status(500).json(err)
                     res.render('projects/issues/edit', {
                         user: req.session.user,

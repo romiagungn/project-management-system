@@ -18,7 +18,8 @@ module.exports = (db) => {
             res.render('profile/listProfile', {
                 title: 'Edit Profile',
                 result,
-                url : 'profile'
+                url : 'profile',
+                user
             })
         });
     });

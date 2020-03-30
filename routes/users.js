@@ -7,7 +7,7 @@ const saltRounds = 10;
 module.exports = (db) => {
 
     // main page, filtering data/table, and showing data
-    router.get('/', helpers.isLoggedIn, (req, res) => {
+    router.get('/', helpers.isLoggedIn, helpers.isAdmin, (req, res) => {
         let user = req.session.user
         let sql = `SELECT userid, email, password, CONCAT(firstname,' ',lastname) as name, position, isfulltime FROM users`;
         //filter logic
@@ -83,7 +83,7 @@ module.exports = (db) => {
         });
     });
 
-    router.post('/', helpers.isLoggedIn, (req, res) => {
+    router.post('/', helpers.isLoggedIn, helpers.isAdmin, (req, res) => {
         let user = req.session.user;
         let sqlEditOption = `UPDATE users SET option='${JSON.stringify(req.body)}' WHERE userid=${user.userid}`;
         db.query(sqlEditOption, err => {
@@ -93,15 +93,16 @@ module.exports = (db) => {
     })
 
     // route to add data page
-    router.get('/add', helpers.isLoggedIn, (req, res) => {
+    router.get('/add', helpers.isLoggedIn, helpers.isAdmin, (req, res) => {
         res.render('users/add', {
             title: "PMS Dashboard",
-            url: 'users'
+            url: 'users',
+            user : req.session.user
         });
     });
 
     // post data
-    router.post('/add', helpers.isLoggedIn, (req, res) => {
+    router.post('/add', helpers.isLoggedIn, helpers.isAdmin, (req, res) => {
         const { email, password, firstname, lastname, position } = req.body;
         const isfulltime = req.body.job == 'Full Time' ? 'Full Time' : 'Part Time';
         bcrypt.hash(password, saltRounds, function (err, hash) {
@@ -121,7 +122,7 @@ module.exports = (db) => {
     });
 
     // get user by id for editing
-    router.get('/edit/:userid', helpers.isLoggedIn, (req, res) => {
+    router.get('/edit/:userid', helpers.isLoggedIn, helpers.isAdmin, (req, res) => {
         const { userid } = req.params
         db.query(`SELECT * from users WHERE userid = $1`, [userid], (err, data) => {
             if (err) return res.send(err);
@@ -130,13 +131,14 @@ module.exports = (db) => {
                 title: "PMS Dashboard",
                 result,
                 query: req.query,
-                url: 'users'
+                url: 'users',
+                user : req.session.user
             });
         });
     });
 
     // update data edit
-    router.post('/edit/:userid', helpers.isLoggedIn, (req, res) => {
+    router.post('/edit/:userid', helpers.isLoggedIn, helpers.isAdmin, (req, res) => {
         const { email, password, firstname, lastname, position, job } = req.body
         const { userid } = req.params;
         bcrypt.hash(password, saltRounds, function (err, hash) {
@@ -150,7 +152,7 @@ module.exports = (db) => {
     })
 
     // delete data
-    router.get('/delete/:userid', helpers.isLoggedIn, (req, res) => {
+    router.get('/delete/:userid', helpers.isLoggedIn, helpers.isAdmin, (req, res) => {
         const { userid } = req.params;
         let sql = `DELETE FROM users WHERE userid = ${userid}`
         db.query(sql, (err, data) => {

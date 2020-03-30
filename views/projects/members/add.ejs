@@ -17,7 +17,7 @@
                         <label for="inputBoolean" class="col-sm-2 col-form-label">
                             Members</label>
                         <div class="col-sm-10">
-                            <select class="custom-select" name="inputmember">
+                            <select class="custom-select" name="inputmember" required>
                                 <option value="">Choose Member</option>
                                 <% result2.forEach((item, index) => { %>
                                 <option value="<%= item.userid %>"><%= item.nama %>
