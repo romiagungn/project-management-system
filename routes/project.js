@@ -522,7 +522,7 @@ module.exports = (db) => {
                     if (err) res.status(500).json(err)
                     let issues = `SELECT * FROM issues WHERE projectid = ${projectid} ORDER BY issueid ASC`;
                     db.query(issues, (err, issuesData) => {
-                        if(err) res.status(500).json(err)
+                        if (err) res.status(500).json(err)
                         res.render('projects/issues/listIssues', {
                             user: req.session.user,
                             title: 'Darsboard Issues',
@@ -597,16 +597,19 @@ module.exports = (db) => {
     //landing to page project/ Issuess / edit
     router.get('/issues/:projectid/edit/:issueid', helpers.isLoggedIn, (req, res) => {
         const { projectid, issueid } = req.params;
-        let getProject = `SELECT * FROM issues WHERE issueid =${issueid} AND projectid=${projectid}`;
+        let getProject = `SELECT i1.*, projects.name FROM issues i1 
+            LEFT JOIN projects ON i1.projectid = projects.projectid
+            WHERE issueid = ${issueid}
+            AND projects.projectid = ${projectid}`;
         let getUser = `SELECT users.userid, CONCAT(users.firstname,' ',users.lastname) as nama , projects.projectid FROM members 
             LEFT JOIN users ON members.userid = users.userid
             LEFT JOIN projects ON members.projectid = projects.projectid WHERE members.projectid = ${projectid}`;
-        let getIssues = `SELECT issueid, subject, tracker FROM issues GROUP BY issueid HAVING projectid = $1`
+        let getIssues = `SELECT issueid, subject, tracker FROM issues WHERE issueid  NOT IN (SELECT issueid FROM issues WHERE issueid = $1) GROUP BY issueid HAVING projectid = $2`
         db.query(getProject, (err, getData) => {
             if (err) res.status(500).json(err)
             db.query(getUser, (err, dataUser) => {
                 if (err) res.status(500).json(err)
-                db.query(getIssues, [projectid], (err, dataIssues) => {
+                db.query(getIssues, [issueid, projectid], (err, dataIssues) => {
                     if (err) res.status(500).json(err)
                     res.render('projects/issues/edit', {
                         user: req.session.user,
