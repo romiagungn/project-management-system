@@ -17,7 +17,7 @@ module.exports = (db) => {
             result.push(`projects.projectid=${idproject}`)
         }
         if (cnama && namaproject) {
-            result.push(`projects.name LIKE '%${namaproject}%'`)
+            result.push(`projects.name ILIKE '%${namaproject}%'`)
         }
         if (cmember && member) {
             result.push(`members.userid=${member}`)
@@ -170,27 +170,33 @@ module.exports = (db) => {
         const { editname, editmember } = req.body;
         let projectid = req.params.projectid;
         let sql = `UPDATE projects SET name= '${editname}' WHERE projectid = ${projectid}`
-        db.query(sql, (err) => {
-            if (err) res.status(500).json(err)
-            let sqlDeleteMember = `DELETE FROM members WHERE projectid = ${projectid}`;
-
-            db.query(sqlDeleteMember, (err) => {
+        if (projectid && editname && editmember) {
+            db.query(sql, (err) => {
                 if (err) res.status(500).json(err)
-                let result = [];
-                if (typeof editmember == "string") {
-                    result.push(`(${editmember}, ${projectid})`);
-                } else {
-                    for (let i = 0; i < editmember.length; i++) {
-                        result.push(`(${editmember[i]}, ${projectid})`);
-                    }
-                }
-                let sqlUpdate = `INSERT INTO members (userid, role, projectid) VALUES ${result.join(",")}`;
-                db.query(sqlUpdate, (err) => {
+                let sqlDeleteMember = `DELETE FROM members WHERE projectid = ${projectid}`;
+
+                db.query(sqlDeleteMember, (err) => {
                     if (err) res.status(500).json(err)
-                    res.redirect('/projects')
+                    let result = [];
+                    if (typeof editmember == "string") {
+                        result.push(`(${editmember}, ${projectid})`);
+                    } else {
+                        for (let i = 0; i < editmember.length; i++) {
+                            result.push(`(${editmember[i]}, ${projectid})`);
+                        }
+                    }
+                    console.log(result)
+                    let sqlUpdate = `INSERT INTO members (userid, role, projectid) VALUES ${result.join(",")}`;
+                    db.query(sqlUpdate, (err) => {
+                        if (err) res.status(500).json(err)
+                        res.redirect('/projects')
+                    })
                 })
             })
-        })
+        } else {
+            req.flash('projectMessage', 'Please add members, members cant empty')
+            res.redirect(`/projects/edit/${projectid}`);
+        }
     })
 
     // to delete project 
@@ -508,24 +514,23 @@ module.exports = (db) => {
         const { projectid } = req.params;
         const user = req.session.user;
         const { cissues, csubject, ctracker, issues, subject, tracker } = req.query
-        let sql = `SELECT count(total) AS total FROM (SELECT i1.*, users.userid, concat(users.firstname, ' ', users.lastname) as fullname, concat(u2.firstname, ' ', u2.lastname) author FROM issues i1 INNER JOIN users ON  users.userid = i1.assignee INNER JOIN users u2 ON i1.author = u2.userid  WHERE projectid = ${projectid}`;
+        let sql = `SELECT COUNT(*) AS total FROM issues WHERE projectid=${projectid}`;
         // start filter logic
         let result = []
 
         if (cissues && issues) {
-            result.push(`issueid = ${issues}`)
+            result.push(`issues.issueid = ${issues}`)
         }
         if (csubject && subject) {
-            result.push(`subject LIKE '%${subject}%'`)
+            result.push(`issues.subject ILIKE '%${subject}%'`)
         }
         if (ctracker && tracker) {
-            result.push(`tracker = '${tracker}'`)
+            result.push(`issues.tracker = '${tracker}'`)
         }
         if (result.length > 0) {
             sql += ` AND ${result.join(' AND ')}`
         }
 
-        sql += `) AS total`
         // end filter logic
         db.query(sql, (err, totalData) => {
             if (err) res.status(500).json(err)
@@ -537,10 +542,12 @@ module.exports = (db) => {
             const offset = (page - 1) * limit;
             const total = totalData.rows[0].total
             const pages = Math.ceil(total / limit);
-            let getIssues = `SELECT i1.*, users.userid, concat(users.firstname, ' ', users.lastname) as nama, concat(u2.firstname, ' ', u2.lastname) author, i2.subject issuename FROM issues i1 
-            LEFT JOIN users ON  users.userid = i1.assignee
-            LEFT JOIN users u2 ON i1.author = u2.userid  
-            LEFT JOIN issues i2 ON i1.parentask = i2.issueid WHERE i1.projectid =${projectid}`
+            let getIssues = `SELECT users.userid, CONCAT(users.firstname,' ',users.lastname) fullname, issues.issueid, issues.projectid, issues.tracker, issues.subject, 
+            issues.description, issues.status, issues.priority, issues.assignee, issues.startdate, issues.duedate, issues.estimatedate, issues.done, issues.files, 
+            issues.spentime, issues.targetversion, issues.author, CONCAT(u2.firstname, ' ', u2.lastname) author, issues.createdate, issues.updatedate, issues.closedate, issues.parentask, i2.subject issuename 
+            FROM issues LEFT JOIN users ON issues.assignee=users.userid 
+            LEFT JOIN users u2 ON issues.author=u2.userid 
+            LEFT JOIN issues i2 ON issues.parentask = i2.issueid WHERE issues.projectid = ${projectid}`
 
             if (result.length > 0) {
                 getIssues += ` AND ${result.join(' AND ')}`
@@ -548,6 +555,7 @@ module.exports = (db) => {
 
             getIssues += ` ORDER BY issueid ASC`
             getIssues += ` LIMIT ${limit} OFFSET ${offset}`
+            console.log(getIssues)
             // end pagenation members logic
             db.query(getIssues, (err, dataIssues) => {
                 if (err) res.status(500).json(err)

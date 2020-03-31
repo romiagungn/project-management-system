@@ -5,7 +5,9 @@ CREATE TABLE users
     email VARCHAR(30),
     password VARCHAR(100),
     firstname VARCHAR(30),
-    lastname VARCHAR(30)
+    lastname VARCHAR(30),
+    isfulltime VARCHAR(50),
+    position VARCHAR(50)
 );
 
 -- table project 
@@ -62,10 +64,8 @@ CREATE TABLE activity
     time TIMESTAMP,
     title VARCHAR(50),
     description TEXT,
-    author VARCHAR(50),
+    author INT,
     projectid INT,
-    issueid INT,
     FOREIGN KEY (projectid) REFERENCES projects(projectid),
-    FOREIGN KEY (author) REFERENCES users(userid),
-    FOREIGN KEY (issueid) REFERENCES issues(issueid)
+    FOREIGN KEY (author) REFERENCES users(userid)
 )
