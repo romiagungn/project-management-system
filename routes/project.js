@@ -185,7 +185,6 @@ module.exports = (db) => {
                             result.push(`(${editmember[i]}, ${projectid})`);
                         }
                     }
-                    console.log(result)
                     let sqlUpdate = `INSERT INTO members (userid, role, projectid) VALUES ${result.join(",")}`;
                     db.query(sqlUpdate, (err) => {
                         if (err) res.status(500).json(err)
@@ -555,7 +554,6 @@ module.exports = (db) => {
 
             getIssues += ` ORDER BY issueid ASC`
             getIssues += ` LIMIT ${limit} OFFSET ${offset}`
-            console.log(getIssues)
             // end pagenation members logic
             db.query(getIssues, (err, dataIssues) => {
                 if (err) res.status(500).json(err)

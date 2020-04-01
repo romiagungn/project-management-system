@@ -60,14 +60,14 @@
                             <div class="col-sm-10">
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="job" id="gridRadios1"
-                                        value="Full Time" <%= result.isfulltime == 'Full Time' ? 'checked' : '' %>>
+                                        value="Full Time" disabled <%= result.isfulltime == true ? 'checked' : '' %>>
                                     <label class="form-check-label" for="gridRadios1">
                                         Full Time
                                     </label>
                                 </div>
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="job" id="gridRadios2"
-                                        value="Part Time" <%= result.isfulltime == 'Part Time' ? 'checked' : '' %>>
+                                        value="Part Time" disabled <%= result.isfulltime == false ? 'checked' : '' %>>
                                     <label class="form-check-label" for="gridRadios2">
                                         Part Time
                                     </label>

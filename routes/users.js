@@ -63,7 +63,10 @@ module.exports = (db) => {
 
             db.query(sql, (err, data) => {
                 if (err) res.status(500).json(err)
-                let result = data.rows;
+                let result = data.rows.map(item => {
+                    item.isfulltime = item.isfulltime ? 'Full Time' : 'Part Time'
+                    return item
+                });
                 let sqlOption = `SELECT option FROM users WHERE userid = ${user.userid}`;
                 db.query(sqlOption, (err, optionData) => {
                     if (err) res.status(500).json(err);
@@ -104,7 +107,7 @@ module.exports = (db) => {
     // post data
     router.post('/add', helpers.isLoggedIn, helpers.isAdmin, (req, res) => {
         const { email, password, firstname, lastname, position } = req.body;
-        const isfulltime = req.body.job == 'Full Time' ? 'Full Time' : 'Part Time';
+        const isfulltime = req.body.job == 'Full Time' ? true : false;
         bcrypt.hash(password, saltRounds, function (err, hash) {
             let sql = `INSERT INTO users (email, password, firstname, lastname, position, isfulltime, option, optionprojects, optionmembers, optionissues ) VALUES ($1, $2, $3, $4, $5 , $6,
                 '{"checkid":"true","checkname":"true","checkposition":"true"}', 
@@ -143,7 +146,8 @@ module.exports = (db) => {
         const { userid } = req.params;
         bcrypt.hash(password, saltRounds, function (err, hash) {
             if (err) return res.send(err)
-            let sql = `UPDATE users SET email = '${email}', password = '${hash}', firstname = '${firstname}', lastname = '${lastname}', position = '${position}', isfulltime='${job == 'Full Time' ? 'Full Time' : 'Part Time'}' WHERE userid = ${userid}`;
+            let sql = `UPDATE users SET email = '${email}', password = '${hash}', firstname = '${firstname}', lastname = '${lastname}', position = '${position}', isfulltime='${job == 'Full Time' ? true : false }' WHERE userid = ${userid}`;
+            console.log(sql)
             db.query(sql, (err) => {
                 if (err) return res.send(err);
                 res.redirect('/users')

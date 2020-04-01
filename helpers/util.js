@@ -8,8 +8,8 @@ const helpers = {
         }
     },
     isAdmin: (req, res, next) => {
-        if(req.session.user.isadmin) {
-            console.log(req.session.user.isadmin)
+        if(req.session.user.isfulltime) {
+            console.log(req.session.user.isfulltime)
             next();
         } else {
             req.flash('permissionMessage', 'Permission Denied')
