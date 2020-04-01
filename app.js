@@ -11,13 +11,18 @@ const fileUpload = require('express-fileupload');
 //Model setup
 const { Pool } = require("pg");
 const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'pms',
-  password: 'binatang',
-  port: 5432,
+  user: 'tppfrrxvhqbopb',
+  host: 'ec2-34-200-101-236.compute-1.amazonaws.com',
+  database: 'd9cgbs2u2l1u9b',
+  password: '8c7624200e4f65e13d0360e897b309a1519e468fc32c8692d59a423005a1306b',
+  port: 5432
+
+  // user: 'postgres',
+  // host: 'localhost',
+  // database: 'pms',
+  // password: 'binatang',
+  // port: 5432,
 })
-console.log("Successful connection to the database");
 
 // setup routes
 var indexRouter = require('./routes/index')(pool);
