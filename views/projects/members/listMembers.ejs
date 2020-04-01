@@ -141,7 +141,7 @@
                                     href="/projects/members/<%= result.projectid %>/edit/<%= item.id %>"
                                     role="button">Edit</a>
 
-                                <% if (user.isAdmin) { %>
+                                <% if (user.isfulltime) { %>
                                 <a class="btn btn-dark my-2 my-sm-0 delete"
                                     onclick="return confirm('Are you sure you want to delete this item?');"
                                     href="/projects/members/<%= result.projectid %>/delete/<%= item.id %>">Delete</a>

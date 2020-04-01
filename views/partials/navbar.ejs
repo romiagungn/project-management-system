@@ -22,7 +22,7 @@
                 <a class="nav-link" href="/profile">Profile</a>
             </li>
 
-            <% if (user.isAdmin) {  %>
+            <% if (user.isfulltime) {  %>
             <li class="nav-item <%= url == 'users' ? 'active' : '' %>">
                 <a class="nav-link" href="/users">Users</a>
             </li>

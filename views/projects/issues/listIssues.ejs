@@ -282,7 +282,7 @@
                                 <a href="/projects/issues/<%= result.projectid %>/edit/<%= item.issueid %>">
                                     <button type="button" class="btn btn-secondary btn-block btn-sm mb-2">Edit</button>
                                 </a>
-                                <% if (user.isAdmin) { %>
+                                <% if (user.isfulltime) { %>
                                 <a onclick="return confirm('Are you sure you want to delete this item?');"
                                     href="/projects/issues/<%= result.projectid %>/delete/<%= item.issueid %>">
                                     <button type="button" class="btn btn-secondary btn-block btn-sm">Delete</button>
