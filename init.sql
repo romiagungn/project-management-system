@@ -7,7 +7,7 @@ CREATE TABLE users
     firstname VARCHAR(30),
     lastname VARCHAR(30),
     isfulltime boolean,
-    position VARCHAR(50)
+    position VARCHAR(50),
     option json,
     optionprojects json,
     optionmembers json,
