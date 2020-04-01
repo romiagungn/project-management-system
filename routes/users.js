@@ -152,7 +152,7 @@ module.exports = (db) => {
                 if (err) return res.send(err);
                 res.redirect('/users')
             })
-        })
+        }) 
     })
 
     // delete data
