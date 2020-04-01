@@ -11,7 +11,7 @@ CREATE TABLE users
     option json,
     optionprojects json,
     optionmembers json,
-    optionissues json,
+    optionissues json
 );
 
 -- table project 
